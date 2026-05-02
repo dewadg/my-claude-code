@@ -1,4 +1,3 @@
-# Agents
+# my-claude-code
 
-My collection of agents and skills mainly used for Claude Code.
-
+My collection of Claude Code subagents, skills, etc.
