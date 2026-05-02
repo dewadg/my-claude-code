@@ -3,6 +3,7 @@ name: react-eng
 description: "Use when optimizing existing React applications for performance, implementing advanced React 18+ features, or solving complex state management and architectural challenges within React codebases."
 tools: Read, Write, Edit, Bash, Glob, Grep, WebSearch, WebFetch
 model: sonnet
+color: cyan
 skills:
   - http-api-test
 ---

@@ -3,6 +3,7 @@ name: qa-eng
 description: "Use this agent when you need comprehensive quality assurance strategy, test planning across the entire development cycle, or quality metrics analysis to improve overall software quality."
 tools: Read, Grep, Glob, Bash
 model: sonnet
+color: red
 skills:
   - http-api-test
 ---
