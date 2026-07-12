@@ -1,0 +1,12 @@
+# macOS
+.idea/
+.DS_Store
+
+# Local Claude Code overrides (not part of the shared config)
+.claude/settings.local.json
+
+# Secrets — this repo must only ever reference credentials as ${ENV_VAR}
+.env
+.env.*
+*.pem
+*.key
