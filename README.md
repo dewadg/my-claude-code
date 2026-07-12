@@ -22,6 +22,7 @@ skills, MCP servers) plus a system prompt.
 
 | Agent | Use for |
 |---|---|
+| `api-documenter` | API docs, OpenAPI specs, doc portals, generated code examples |
 | `architect-reviewer` | System design decisions, architectural patterns, technology choices |
 | `code-reviewer` | Code quality, security vulnerabilities, best practices |
 | `compliance-auditor` | GDPR / CCPA obligations, data practices, privacy gaps |
@@ -30,6 +31,7 @@ skills, MCP servers) plus a system prompt.
 | `golang-eng` | Go services, concurrency, cloud-native systems |
 | `js-eng` | Modern JavaScript — browser, Node.js, Bun, full-stack |
 | `qa-eng` | QA strategy, test planning, quality metrics |
+| `react-eng` | React 18+ performance, state management, component architecture |
 | `security-auditor` | Security audits, vulnerability analysis, compliance gaps |
 | `ui-tester` | Exhaustive UI/UX testing from documented user flows |
 | `vue-eng` | Vue 3 Composition API, reactivity, Nuxt 3 |
