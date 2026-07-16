@@ -31,26 +31,38 @@ description: What this is about.
 ### Location
 As defined on CLAUDE.md OR to `.notes/` relative to the workspace by default.
 
+The note dir may contain an `archive/` subdirectory holding previous/outdated notes.
+**Always search it too** — archived notes are still valid results.
+
 ### Searching for note files with `grep`
 
 **IMPORTANT**: Respect the frontmatter fields.
 
+**IMPORTANT**: Search recursively (`-r`), never with a flat `.notes/*.md` glob — a flat glob
+skips `.notes/archive/`.
+
 Search by topics, ticket number with `tags`:
 ```
-grep -l "tags: .*keywords" .note/*.md
+grep -rl "tags: .*keywords" .notes/
 ```
 
 Search with `projects` field:
 ```
-grep -l "tags: .*user-management-svc" .note/*.md
+grep -rl "tags: .*user-management-svc" .notes/
 ```
 
 Search by date:
 ```
-grep -l "created: 2025-04-30" .note/*.md
-grep -l "updated: 2025-04-30" .note/*.md
+grep -rl "created: 2025-04-30" .notes/
+grep -rl "updated: 2025-04-30" .notes/
 ```
+
+### Reporting archived notes
+
+Mark any hit under `archive/` as archived when listing results, and rank current notes above
+archived ones. If a current and an archived note cover the same topic, prefer the current one and
+mention the archived note as prior context.
 **IMPORTANT**: Refrain from reading the whole file without checking the frontmatter:
 ```
-awk '/^---$/{c++; if(c==2){exit;} next} c==1' .memory/not-sure-the-correct-note.md
+awk '/^---$/{c++; if(c==2){exit;} next} c==1' .notes/not-sure-the-correct-note.md
 ```
