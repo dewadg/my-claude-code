@@ -71,6 +71,15 @@ must stay in sync.
 | `golang-unit-test` | Go table-driven tests with before/after hooks |
 | `http-api-test` | Drive HTTP endpoints with curl and verify responses |
 
+### Writing
+
+| Skill | Use for |
+|---|---|
+| `ticket-description` | Ticket/issue description bodies in a fixed section structure, any tracker |
+| `pr-description` | PR/MR description bodies from the branch diff, emoji-sectioned template |
+
+Both produce description text only — they never create the ticket or open the PR.
+
 ### Release & ops
 
 | Skill | Use for |
