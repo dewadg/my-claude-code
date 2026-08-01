@@ -64,12 +64,13 @@ Notes live in `.notes/` (or wherever the project's `CLAUDE.md` says), named
 `description` frontmatter. The orchestrator skills read and write this format, so the two note skills
 must stay in sync.
 
-### Testing
+### API & testing
 
 | Skill | Use for |
 |---|---|
 | `golang-unit-test` | Go table-driven tests with before/after hooks |
 | `http-api-test` | Drive HTTP endpoints with curl and verify responses |
+| `hoppscotch-import` | Generate a Hoppscotch collection JSON from an OpenAPI spec, route code, Postman, HAR, or plain list |
 
 ### Writing
 
