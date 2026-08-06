@@ -39,9 +39,8 @@ mcpServers:                   # names MUST exist in .mcp.json
 ---
 ```
 
-Body convention across agents: a role paragraph, a "When invoked" list, a Communication Protocol
-section with a JSON context-query block, then phased workflow sections. Follow the shape of an
-existing agent when adding a new one.
+Body convention across agents: a role paragraph, a "When invoked" list, then phased workflow
+sections. Follow the shape of an existing agent when adding a new one.
 
 ## Skill frontmatter
 
