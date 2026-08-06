@@ -40,6 +40,12 @@ These agents are from [awesome-claude-code-subagents](https://github.com/VoltAge
 
 ## Skills
 
+### Planning
+
+| Skill | Use for | Not for |
+|---|---|---|
+| `spec` | Design a change end-to-end into a build-ready `specs/{slug}.md` before any code | Implementing decided work (`/code`); diagnosing a bug (`/investigate`) |
+
 ### Orchestrators
 
 These three share one shape: plan the work as tasks, delegate every project-level unit to a
