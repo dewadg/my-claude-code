@@ -3,6 +3,7 @@ name: docker-eng
 description: "Use this agent when designing, building, running, or optimizing docker containers"
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: haiku
+effort: high
 mcpServers:
   - goland
 ---

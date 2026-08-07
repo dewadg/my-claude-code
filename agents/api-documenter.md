@@ -3,6 +3,7 @@ name: api-documenter
 description: "Use this agent when creating or improving API documentation, writing OpenAPI specifications, building interactive documentation portals, or generating code examples for APIs."
 tools: Read, Write, Edit, Glob, Grep, WebFetch, WebSearch
 model: sonnet
+effort: high
 mcpServers:
   - goland
 ---

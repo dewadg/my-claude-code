@@ -3,7 +3,7 @@ name: vue-eng
 description: "Use this agent when building Vue 3 applications that require Composition API mastery, reactivity optimization, or Nuxt 3 development with enterprise-scale performance concerns."
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet
-effort: medium
+effort: high
 color: green
 skills:
   - note-search

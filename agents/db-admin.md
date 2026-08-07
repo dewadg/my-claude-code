@@ -3,6 +3,7 @@ name: db-admin
 description: "Use this agent when optimizing database performance, implementing high-availability architectures, setting up disaster recovery, or managing database infrastructure for production systems."
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet
+effort: high
 skills:
   - note-search
   - note-write
