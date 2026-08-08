@@ -56,7 +56,7 @@ Two jobs: **create** a spec (default, steps below) or **archive** a done one (se
 
 6. **Hand off**
 
-   Summarize in chat: spec path, decisions made (one line each), wave count, any Open Questions needing user. End with: "Review the spec, then run `/code` to implement."
+   Summarize in chat: spec path, decisions made (one line each), wave count, any Open Questions needing user. Tell `/code` to honor the checkbox contract under Todo: check off each task `[x]` in the spec as its subagent completes it. End with: "Review the spec, then run `/code` to implement."
 
 ## The spec.md template
 
@@ -138,8 +138,15 @@ a single task with sequential sub-bullets — don't split them into parallel spa
 the overhead for trivia. Reserve a parallel wave for tasks that are genuinely independent and each
 big enough that the overhead is small relative to the work (typically different projects or different
 stacks needing different agents). Every task names the single subagent that owns it (route by
-capability — see "Picking subagents" below) and the files/package it lands in. Mark done work with
-`[x]` as `/code` executes.
+capability — see "Picking subagents" below) and the files/package it lands in.
+
+**Checkbox contract.** The Todo list is the source of truth for progress. Every task starts as `[ ]`.
+The instant a task's owning subagent reports its work complete, flip that one checkbox to `[x]` in the
+spec file (Edit, not a chat claim) before the next task starts — never leave a finished task unchecked,
+never pre-check a task still in flight. `/code` owns this update as it executes each wave; re-read the
+spec from disk before each edit so concurrent checks don't clobber. A task is "done" only when the
+subagent finished the work AND any test task paired with it is green — not when it merely starts. Before
+the spec is archived (Archive step), every box must read `[x]`; any `[ ]` means the change is not done.
 
 Size rule: one subagent spawn per task. Too large (needs multiple spawns or handoffs) → split into
 separate tasks. Too small (overhead dwarfs the work, or one agent would do several in one go) →
@@ -194,13 +201,14 @@ One subagent per project per task — two agents editing same project concurrent
 Move shipped or abandoned spec out of live set into `specs/archives/`. Trigger on "archive the spec", "archive `<slug>`", "/spec archive", or any shelving intent.
 
 1. **Identify the target.** Slug named in request; if none named, `ls specs/*.md` and ask which (AskUserQuestion). If `specs/{slug}.md` doesn't exist, say so and stop — don't guess.
-2. **Date-stamp.** Use today's date from session context as `YYYY-MM-DD`.
-3. **Move it** (not copy):
+2. **Check the todo list.** Re-read the spec from disk and scan the Todo section. If every box is `[x]`, it shipped clean — proceed. If unchecked `[ ]` items remain, surface them and ask (AskUserQuestion): is this shipped-but-incomplete or abandoned? For shipped-incomplete, record which tasks were dropped under a new `## Incomplete` heading before moving; for abandoned, record that fact under the heading. Never archive with `[ ]` items unaccounted for — the archive must reflect reality, not a false "done".
+3. **Date-stamp.** Use today's date from session context as `YYYY-MM-DD`.
+4. **Move it** (not copy):
    ```bash
    mkdir -p specs/archives
    mv specs/{slug}.md specs/archives/{YYYY-MM-DD}-{slug}.md
    ```
-4. **Confirm** the destination path.
+5. **Confirm** the destination path.
 
 If `specs/archives/{YYYY-MM-DD}-{slug}.md` already exists, ask overwrite vs skip before replacing.
 Archiving removes the spec from `specs/` — it is no longer a live spec.
