@@ -30,7 +30,7 @@ skills, MCP servers) plus a system prompt.
 | `docker-eng` | Designing, building, running, optimizing containers |
 | `golang-eng` | Go services, concurrency, cloud-native systems |
 | `js-eng` | Modern JavaScript — browser, Node.js, Bun, full-stack |
-| `qa-eng` | Versatile QA — BE endpoints via http-api-test, FE/UI via chrome-devtools MCP, plus test strategy, automation, quality metrics |
+| `qa-eng` | Versatile QA — BE endpoints via http-api-test, FE/UI via chrome MCP, plus test strategy, automation, quality metrics |
 | `react-eng` | React 18+ performance, state management, component architecture |
 | `security-auditor` | Security audits, vulnerability analysis, compliance gaps |
 | `vue-eng` | Vue 3 Composition API, reactivity, Nuxt 3 |
@@ -100,7 +100,7 @@ Both produce description text only — they never create the ticket or open the 
 - **context7** — up-to-date library/framework docs
 - **gitlab** — issues, merge requests, pipelines
 - **goland** — IDE integration (local, `127.0.0.1:64342`)
-- **chrome-devtools** — browser driving for UI testing
+- **chrome** — browser driving for UI testing
 
 Agents opt into servers via their `mcpServers:` frontmatter, so a server name here must match the key
 in `.mcp.json`.

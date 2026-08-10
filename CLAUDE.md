@@ -17,7 +17,7 @@ are not tracked here — this repo is a curated subset, not a mirror.
 - `agents/*.md` — one subagent per file. Frontmatter + system prompt.
 - `skills/<name>/SKILL.md` — one skill per directory. Supporting scripts live alongside
   (e.g. `skills/telegram-notify/scripts/send_telegram.sh`).
-- `.mcp.json` — MCP servers (`context7`, `gitlab`, `goland`, `chrome-devtools`). Secrets are
+- `.mcp.json` — MCP servers (`context7`, `gitlab`, `goland`, `chrome`). Secrets are
   `${ENV_VAR}` references, never literals.
 
 ## Agent frontmatter
