@@ -178,7 +178,7 @@ Route by capability, not by name (mirror `/code`'s rule):
 
 - Service / backend: engineering agent for that language (`golang-eng`, `js-eng`, …)
 - Web frontend: framework agent (`vue-eng`, `react-eng`, …)
-- Test strategy, E2E, browser verification: `qa-eng` / `ui-tester`
+- Test strategy, E2E, browser verification: `qa-eng`
 - Review of any produced diff: `code-reviewer`
 - Containers, compose, images: `docker-eng`
 - Schema, migrations, query performance: `db-admin`
