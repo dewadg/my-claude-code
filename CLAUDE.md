@@ -68,6 +68,15 @@ and `code` all depend on: files at `.notes/` (or wherever `CLAUDE.md` says), nam
 `updated`, `related`, `description`. `note-search` greps those exact fields — if the frontmatter
 schema changes in `note-write`, `note-search`'s grep recipes must change with it.
 
+**Specs.** The `spec` skill writes single-file specs at `specs/{slug}.md` (live) and archives shipped
+or abandoned ones to `specs/archives/{YYYY-MM-DD}-{slug}.md`. Each spec carries frontmatter `status`
+(`draft` | `in-progress` | `shipped` | `abandoned`), `created`, `updated`, `tags`, `projects`,
+`ticket`, `related`, `description` — `tags`/`projects`/`created`/`updated`/`related`/`description`
+match the note schema deliberately. The skill's **Search** job greps these exact fields and
+awk-extracts the frontmatter block only, so look-back never reads a spec body. If the spec
+frontmatter schema changes, those grep recipes and the template's frontmatter block must change
+with it.
+
 **Orchestrator skills.** `analyze`, `investigate`, and `code` share one architecture: plan with
 TaskCreate/TaskUpdate, delegate every project-level unit of work to a subagent, compile into a note.
 They deliberately do **not** hardcode an agent roster — they route by capability ("a service backend

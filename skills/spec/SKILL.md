@@ -19,7 +19,7 @@ allowed-tools: Read, Grep, Glob, Bash, Write, Edit, AskUserQuestion, Agent, Skil
 
 Turn change idea into one build-ready file: `specs/{slug}.md`. Spec commits to decisions + parallelizable plan, so next step just `/code` executing todo. Work order: research, decisions, then writing.
 
-Two jobs: **create** a spec (default, steps below) or **archive** a done one (see Archive). Route on intent — "archive the X spec" jumps straight to Archive.
+Three jobs: **create** a spec (default, steps below), **search** prior specs (see Search), or **archive** a done one (see Archive). Route on intent — "archive the X spec" jumps to Archive; "find specs about Y", "what specs touch Z", "is there already a spec for W", or "/spec search" jumps to Search.
 
 **Input**: description of what to build or change. May be ticket number, feature name, or prose.
 
@@ -35,6 +35,7 @@ Two jobs: **create** a spec (default, steps below) or **archive** a done one (se
 2. **Ground yourself**
 
    - Note-search skill available, run it — prior note may already hold analysis or decisions. Don't re-derive what's written down.
+   - Search prior specs by topic or project (see Search) — a related or superseded spec may already hold decisions worth reusing. Cheap: reads frontmatter only.
    - Read `CLAUDE.md` / `AGENTS.md` of every project the change touches. Project conventions override your defaults, tell you tech stack (which picks subagents later).
    - Slug already exists in `specs/`, read it — ask user whether to continue or overwrite before doing anything.
 
@@ -52,7 +53,7 @@ Two jobs: **create** a spec (default, steps below) or **archive** a done one (se
 
 5. **Write `specs/{slug}.md`**
 
-   `mkdir -p specs/` if needed, then write single file using template below. Fill every applicable section; omit ones that don't apply. Keep prose tight — bullets over paragraphs, one idea per line.
+   `mkdir -p specs/` if needed, then write single file using template below. Start with the frontmatter block at the top of the template: set `status` to `draft`, `created` and `updated` to today, and fill `tags` / `projects` / `ticket` / `description` from your research. Fill every applicable section; omit ones that don't apply. Keep prose tight — bullets over paragraphs, one idea per line.
 
 6. **Hand off**
 
@@ -63,6 +64,18 @@ Two jobs: **create** a spec (default, steps below) or **archive** a done one (se
 Use this structure. Section order intentional — context and goals before flow, decisions before work they shape, open questions parked near end, todo last as executable plan.
 
 ```markdown
+---
+status: draft                         # draft | in-progress | shipped | abandoned
+created: {YYYY-MM-DD}                 # today
+updated: {YYYY-MM-DD}                 # today; bump on any edit
+tags: [{topic}, {area}]               # domains this change touches
+projects: [{repo-or-package}]         # repos/packages affected
+ticket: {TICKET-NUMBER}               # omit the whole line if there is none
+related:                              # linked specs, notes, or source files
+  - specs/{other-slug}.md
+description: {one-line summary of the change — Search reads this, keep it honest}
+---
+
 # {Title}
 
 > One-line summary of the change. Link to a ticket/issue only if one already exists.
@@ -195,6 +208,48 @@ One subagent per project per task — two agents editing same project concurrent
 - **Waves earn their tokens.** Parallel wave runs concurrently but re-pays each spawn's overhead — token cost, not time cost. Parallelize when it helps; just make sure each task in wave independent and big enough to justify that overhead. Otherwise push it down a wave, or merge small same-stack tasks into single spawn.
 - **Every behavioral change gets a test task** in same or next wave, whenever project supports tests.
 - **Point at source, don't restate.** Reference files and packages by path; don't paste code into spec.
+- **Frontmatter stays honest.** `status` tracks the lifecycle (`draft` → `in-progress` when `/code` begins executing waves → `shipped` / `abandoned` on archive) and `updated` bumps on any edit. Search filters on these fields, so stale status or dates misroute lookups.
+
+## Search
+
+Look up prior specs by their frontmatter, not by reading full bodies. Returns a ranked list of matching specs with their frontmatter summary only — pull a full body into context only when a hit is worth acting on.
+
+### Location
+`specs/` for live specs; `specs/archives/` for shipped or abandoned ones. **Search both** — archived specs still carry decisions worth recalling. Recursive grep, never a flat `specs/*.md` glob (flat skips `archives/`).
+
+### grep recipes — filter on frontmatter fields
+```bash
+# by topic / tag
+grep -rl "tags: .*auth" specs/
+
+# by affected project / repo
+grep -rl "projects: .*chatto-server" specs/
+
+# by lifecycle status: draft | in-progress | shipped | abandoned
+grep -rl "status: shipped" specs/
+
+# by ticket
+grep -rl "ticket: AUTH-123" specs/
+
+# by date (partial match works)
+grep -rl "created: 2026-08" specs/
+grep -rl "updated: 2026-08" specs/
+
+# free-text in description
+grep -rli "export" specs/
+```
+
+Combine filters by piping greps; widen with a bare `grep -rl ... specs/` then eyeball frontmatter on the hits.
+
+### Read frontmatter only, never the whole body
+**IMPORTANT**: before reading a candidate spec end-to-end, extract just its frontmatter to decide if it is relevant:
+```bash
+awk '/^---$/{c++; if(c==2){exit;} next} c==1' specs/{slug}.md
+```
+Prints the frontmatter block (status, tags, projects, description, dates) and exits at the closing `---` — the body never enters context. Read the full file only when frontmatter confirms the spec is the one you want. Same awk note-search uses on notes.
+
+### Reporting results
+List each hit as one line — slug, status, description — pulled from frontmatter. Mark any hit under `archives/` as archived, and rank live specs above archived ones. If a live and an archived spec cover the same topic, prefer the live one and mention the archived as prior context — it may hold the original decisions the live one refined.
 
 ## Archive
 
@@ -202,7 +257,7 @@ Move shipped or abandoned spec out of live set into `specs/archives/`. Trigger o
 
 1. **Identify the target.** Slug named in request; if none named, `ls specs/*.md` and ask which (AskUserQuestion). If `specs/{slug}.md` doesn't exist, say so and stop — don't guess.
 2. **Check the todo list.** Re-read the spec from disk and scan the Todo section. If every box is `[x]`, it shipped clean — proceed. If unchecked `[ ]` items remain, surface them and ask (AskUserQuestion): is this shipped-but-incomplete or abandoned? For shipped-incomplete, record which tasks were dropped under a new `## Incomplete` heading before moving; for abandoned, record that fact under the heading. Never archive with `[ ]` items unaccounted for — the archive must reflect reality, not a false "done".
-3. **Date-stamp.** Use today's date from session context as `YYYY-MM-DD`.
+3. **Date-stamp + finalize status.** Set frontmatter `status` to `shipped` (clean) or `abandoned` (abandoned), and set `updated` to today's `YYYY-MM-DD`. Edit the spec on disk before the move so the archive reflects reality.
 4. **Move it** (not copy):
    ```bash
    mkdir -p specs/archives
