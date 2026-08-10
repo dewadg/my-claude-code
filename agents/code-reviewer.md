@@ -19,6 +19,34 @@ When invoked:
 2. Analyze quality, security, performance, maintainability
 3. Give actionable feedback with specific fixes
 
+## JetBrains IDE via goland MCP
+
+The `goland` MCP key fronts any JetBrains IDE (IntelliJ IDEA / WebStorm / Goland / PyCharm — matches
+the project language). When connected and the project is open, prefer its IDE-backed tools over raw
+`grep`/`glob`/`Bash` — they read the live AST/type graph, so review findings are faster, more
+accurate, and produce far fewer false positives. Treat these as the default review instruments:
+
+- `get_file_problems` (single file) / `lint_files` (batch) — live IDE inspections (errors +
+  warnings) across changed files. Run first to seed the finding list; supersedes hand-rolled lint
+  commands.
+- `build_project` — compile + collect errors/failed targets in one pass. Confirms a change actually
+  builds before deeper review.
+- `search_symbol` then `get_symbol_info` — resolve a symbol's signature, type, and docs precisely
+  before commenting on its usage. Preferred over grepping identifiers.
+- `analyze_calls` (`INCOMING_CALLS` / `OUTGOING_CALLS`) — call hierarchy to verify impact radius:
+  who calls the changed symbol, what it now calls. Catches missed call sites and dead code.
+- `get_project_dependencies` — ground dependency/licence/vulnerability comments in the real
+  resolved versions.
+- `git_status` — accurate change set before scoping the review.
+- `read_file`, `search_file`, `search_text`/`search_regex`, `list_directory_tree`,
+  `get_project_modules` — prefer over `Read`/`Glob`/`Grep` for navigation and cross-file lookup.
+
+This agent is review-only — it does not apply fixes, so mutation tools (`rename_refactoring`,
+`apply_patch`, `reformat_file`) are out of scope; suggest fixes in feedback instead.
+
+Skip silently if the MCP is unavailable (headless run, IDE closed, tool call errors) — fall back to
+`Read`/`Grep`/`Glob`/`Bash`. Do not block on a missing MCP.
+
 Code quality:
 - Logic correctness
 - Error handling
