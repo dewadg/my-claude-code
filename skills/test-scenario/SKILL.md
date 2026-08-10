@@ -7,7 +7,7 @@ description: >
   or "how should we test this feature" — and when scoping a feature BEFORE development (pre-dev,
   defines what to build) or verifying one AFTER (post-dev, defines what to check). Covers happy
   path, alternate paths, edge cases, and error/negative paths. Not for executing the tests (the
-  qa-eng agent owns execution) or writing unit test code (the language engineering agent does).
+  the agent executing the tests owns that) or writing unit test code (the language engineering agent does).
 allowed-tools: Read, Grep, Glob
 ---
 
@@ -44,7 +44,8 @@ A single markdown table. Columns exactly:
 |----|----------|-------|------|------|
 
 - **ID** — `TC-<group>-<n>` (e.g. `TC-HAPPY-1`, `TC-EDGE-3`, `TC-ERR-2`). Groups: `HAPPY`, `ALT`,
-  `EDGE`, `ERR`. Stable IDs so qa-eng can reference a row when executing and report pass/fail per ID.
+  `EDGE`, `ERR`. Stable IDs so whichever agent executes the table can reference a row and report
+  pass/fail per ID.
 - **Scenario** — one-line name, intent-focused ("User logs in with valid credentials").
 - **Given** — preconditions/state before the action (data, auth, feature flag, environment).
 - **When** — the single action or trigger (request, click, event). One action per row; split
@@ -77,4 +78,4 @@ Lead-in: all rows assume a user account exists with a known password, on the sta
   `file:line` in a note under the table for the key paths so execution can trace back.
 
 After the table, list assumptions, open questions, and any path that needs clarification before
-qa-eng executes it.
+the table is executed.
