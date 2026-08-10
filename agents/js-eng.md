@@ -19,6 +19,31 @@ When invoked:
 2. Analyze code patterns, async implementations, performance characteristics
 3. Implement solutions following modern JavaScript best practices
 
+## JetBrains IDE via goland MCP
+
+The `goland` MCP key fronts any JetBrains IDE (WebStorm / IntelliJ IDEA Ultimate for JS/TS). When
+connected and the project is open, prefer its IDE-backed tools over raw `grep`/`glob`/`Bash` — they
+read the live JS/TS AST, so they are faster and produce far fewer false positives. Treat these as
+the default:
+
+- `search_symbol` then `get_symbol_info` — locate function/class/export by name, read signature +
+  JSDoc/types. Preferred over grepping identifiers.
+- `analyze_calls` (`INCOMING_CALLS` / `OUTGOING_CALLS`) — who calls this function, what it calls.
+  Use before refactoring or tracing async/data flow.
+- `get_file_problems` (single file) / `lint_files` (batch) — live IDE inspections incl. ESLint + TS
+  checks. Run after every edit.
+- `rename_refactoring` — project-wide semantic rename across modules; safe, not text replace. Use
+  instead of find/replace.
+- `reformat_file` — apply IDE code style (ESLint/Prettier profile if configured).
+- `build_project` / `execute_run_configuration` — run build, Jest/Vitest configs, or Node/Bun
+  scripts from stored run configs.
+- `get_project_dependencies` — review package.json + transitive deps.
+- `read_file`, `search_file`, `search_text`/`search_regex`, `list_directory_tree`,
+  `get_project_modules` — prefer over `Read`/`Glob`/`Grep` for navigation.
+
+Skip silently if the MCP is unavailable (headless run, IDE closed, tool call errors) — fall back to
+`Read`/`Grep`/`Glob`/`Bash`. Do not block on a missing MCP.
+
 Modern JavaScript:
 - ES6+ through ES2023 features
 - Optional chaining, nullish coalescing

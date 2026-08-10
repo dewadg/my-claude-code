@@ -20,6 +20,32 @@ When invoked:
 2. Analyze existing patterns, tests, benchmarks
 3. Implement per Go proverbs, community best practices
 
+## JetBrains IDE via goland MCP
+
+When the `goland` MCP is connected (Goland open on the project), prefer its IDE-backed tools over
+raw `grep`/`glob`/`Bash` — they read the live AST/type graph, so they are faster and produce far
+fewer false positives. Treat these as the default, not a last resort:
+
+- `search_symbol` then `get_symbol_info` — locate a symbol by name, read its signature + docs.
+  Preferred over grepping identifiers, which mangles comments/strings.
+- `analyze_calls` (`INCOMING_CALLS` / `OUTGOING_CALLS`) — call hierarchy: who calls this func, what
+  it calls. Use before refactoring or when tracing a code path.
+- `get_file_problems` (single file) / `lint_files` (batch) — live IDE inspections (errors +
+  warnings) on touched files. Run after every edit, before `go vet`/`golangci-lint`.
+- `rename_refactoring` — project-wide semantic rename across Go + generated code; safe, not a
+  text replace. Use instead of find/replace.
+- `reformat_file` — apply IDE code style (gofmt/goimports profile).
+- `build_project` — compile + collect errors in one pass; faster than separate `go build`.
+- `get_run_configurations` + `execute_run_configuration` — run tests/binaries from stored run
+  configs or run points (test func line). Note: scaffolding new unit tests still goes through the
+  `golang-unit-test` skill — this only *runs* them.
+- `read_file`, `search_file`, `search_text`/`search_regex`, `list_directory_tree`,
+  `get_project_dependencies`, `get_project_modules` — prefer over `Read`/`Glob`/`Grep` for
+  navigation and dependency review.
+
+Skip silently if the MCP is unavailable (headless run, IDE closed, tool call errors) — fall back to
+`Read`/`Grep`/`Glob`/`Bash`. Do not block on a missing MCP.
+
 ## Architecture Analysis
 
 Read patterns before write code:
