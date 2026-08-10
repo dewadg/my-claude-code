@@ -50,8 +50,12 @@ Break a complex investigation into tasks delegated across subagents. Output is a
 
    Loop through tasks in dependency order:
 
-   a. **ALWAYS launch specialized subagents for project-level codebase investigation.**
-      Do not investigate inline.
+   a. **Scale fan-out to scope — tokens are the budget.** Specialized subagents are expensive, so
+      fan out only when the scope is genuinely broad: multiple projects, a large code surface, or
+      several distinct hypotheses to chase in parallel. For a single project, a narrow trace, or a
+      linear root-cause path you can follow in one pass, investigate **inline** with
+      Read/Grep/Glob/Bash instead of spawning an agent. Prefer the smallest unit of work that still
+      covers the scope; one well-scoped agent beats a roster for a narrow bug.
 
    b. **Continue until all tasks are done.**
       Each subagent gives its findings and its opinion; context-manager compiles them.
@@ -97,6 +101,9 @@ never drop the core sections.
   (data, account, feature flag), plus observed vs. expected behaviour
 - **Evidence** — the logs, data, network traces, and code paths that support the diagnosis, anchored
   with `file:line` references
+- **Flow diagram** — a mermaid diagram (sequence or flowchart) when the failure crosses components
+  or services: the request path from entry to the defect, async/message flow, or the failure
+  mechanism step by step. Skip for single-function bugs — the prose is enough.
 - **Ruled out** — theories investigated and discarded, each with the reason
 - **Root cause** — the single defect: where it lives (`file:line`) and the mechanism by which it
   produces the symptom

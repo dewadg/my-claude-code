@@ -53,8 +53,12 @@ may name the related projects.
 
    Loop through tasks in dependency order:
 
-   a. **ALWAYS launch specialized subagents for project-level codebase investigation.**
-      Do not investigate inline.
+   a. **Scale fan-out to scope — tokens are the budget.** Specialized subagents are expensive, so
+      fan out only when the scope is genuinely broad: multiple projects, a large surface, or several
+      distinct concerns that benefit from parallel investigation. For a single project, a small
+      surface, or a linear analysis you can hold in one pass, investigate **inline** with
+      Read/Grep/Glob/Bash instead of spawning an agent. Prefer the smallest unit of work that still
+      covers the scope; one well-scoped agent beats a roster for a narrow task.
 
    b. **Continue until all tasks are done.**
       Each subagent gives its findings and its opinion; context-manager compiles them.
@@ -96,6 +100,9 @@ Scale the depth to the change, but never drop the core sections.
 - **Impact map** — table: `project | layer | files | new vs. modify | effort`
 - **Proposed change** — per project: API contract, data model and migrations, events, config and
   env vars
+- **Flow diagram** — a mermaid diagram (sequence, flowchart, or C4) when the change has moving
+  parts worth visualizing: request/data flow across services, component interaction, deploy order,
+  or state transitions. Skip for trivial single-file changes — the prose is enough.
 - **Alternatives considered** — the options, their tradeoffs, and why the recommended one wins
 - **Risks and drawbacks** — table: `risk | impact | mitigation`
 - **Feature flag and rollout** — is a flag needed (name, default, kill switch); deploy order across
