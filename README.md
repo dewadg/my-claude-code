@@ -75,6 +75,7 @@ must stay in sync.
 |---|---|
 | `golang-unit-test` | Go table-driven tests with before/after hooks |
 | `http-api-test` | Drive HTTP endpoints with curl and verify responses |
+| `test-scenario` | Given/When/Then test scenarios as a markdown table — happy, alternate, edge, error paths |
 | `hoppscotch-import` | Generate a Hoppscotch collection JSON from an OpenAPI spec, route code, Postman, HAR, or plain list |
 
 ### Writing
