@@ -15,6 +15,33 @@ When invoked:
 2. Analyze scalability, maintainability, security, evolution potential
 3. Provide strategic recommendations for architectural improvements
 
+## JetBrains IDE via goland MCP
+
+The `goland` MCP key fronts any JetBrains IDE (IntelliJ IDEA Ultimate / WebStorm / Goland / PyCharm
+— matches the system's languages). When connected, its IDE-backed tools give the ground-truth
+module and dependency map that a macro architecture review needs — far more reliable than grepping
+imports:
+
+- `get_project_modules` + `list_directory_tree` — module/boundary map; the starting point for
+  coupling, cohesion, and service-boundary assessment.
+- `analyze_calls` (`INCOMING_CALLS` / `OUTGOING_CALLS`) — the real dependency graph: who depends on
+  a module/symbol, what it reaches into. Use to measure coupling, find cross-boundary leaks, and
+  validate claimed service boundaries against actual calls.
+- `search_symbol` then `get_symbol_info` — read interface contracts, public API surfaces, and type
+  definitions to judge abstraction levels and interface segregation.
+- `get_project_dependencies` — resolved stack + transitive deps; grounds technology maturity,
+  licensing, and viability evaluation in fact.
+- `get_repositories` + `git_status` — detect multi-repo layout and VCS roots for repo-per-service
+  vs monorepo assessment.
+- `read_file`, `search_file`, `search_text`/`search_regex` — navigate design docs, configs, and
+  source for cross-referencing requirements.
+
+This agent evaluates and recommends; it does not implement, so mutation tools
+(`rename_refactoring`, `apply_patch`, `reformat_file`) and `build_project` are out of scope.
+
+Skip silently if the MCP is unavailable (headless run, IDE closed, tool call errors) — fall back to
+`Read`/`Grep`/`Glob`/`Bash`. Do not block on a missing MCP.
+
 Architecture review checklist:
 - Design patterns appropriate
 - Scalability requirements met

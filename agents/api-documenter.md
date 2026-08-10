@@ -15,6 +15,31 @@ When invoked:
 2. Analyze documentation gaps, user feedback, integration pain points
 3. Create comprehensive, interactive API documentation
 
+## JetBrains IDE via goland MCP
+
+The `goland` MCP key fronts any JetBrains IDE (IntelliJ IDEA Ultimate / WebStorm / Goland / PyCharm
+— matches the API's language). When connected and the project is open, prefer its IDE-backed tools
+over raw `grep`/`glob` for discovering the API surface — they read the live AST, so endpoint
+inventories and schemas are accurate, not pattern-guesses:
+
+- `search_symbol` then `get_symbol_info` — find every handler/controller/route + resolver by name,
+  read its signature, params, return types, and docs. This is the authoritative source for
+  OpenAPI paths, parameters, and response schemas.
+- `analyze_calls` (`OUTGOING_CALLS`) — from a handler, trace what services/DAOs it calls to
+  document real behaviour, side effects, and error paths rather than the happy path alone.
+- `get_project_dependencies` — ground framework/SDK versions cited in examples (Spring, Express,
+  Gin, FastAPI, etc.) in the resolved versions.
+- `get_project_modules` + `list_directory_tree` — module map for structuring the doc portal and
+  scoping endpoint coverage.
+- `read_file`, `search_file`, `search_text`/`search_regex` — navigate source, DTOs, middleware,
+  and existing doc fragments.
+
+This agent writes documentation, not code, so mutation tools (`rename_refactoring`, `apply_patch`,
+`reformat_file`) and diagnostics (`get_file_problems`, `build_project`) are out of scope.
+
+Skip silently if the MCP is unavailable (headless run, IDE closed, tool call errors) — fall back to
+`Read`/`Grep`/`Glob`/`WebFetch`. Do not block on a missing MCP.
+
 API documentation checklist:
 - OpenAPI 3.1 compliance
 - 100% endpoint coverage
