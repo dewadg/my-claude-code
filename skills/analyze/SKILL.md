@@ -72,10 +72,22 @@ Do not rely on a fixed roster — pick from the agent types available to the `Ag
 session, so newly added agents are used without this skill changing. If you need to enumerate them,
 run `ls .claude/agents/ ~/.claude/agents/`.
 
-Route by capability: a service or backend goes to the engineering agent for its language, a web
-frontend to the agent for its framework, test strategy to the QA agent, schema and migrations to
-the database agent, and cross-cutting design concerns to the architecture review agent. If several
-fit, pick the most specific. If none fits, use `general-purpose`.
+**Default for code reading: spawn `code-diver`.** It returns call-graph trees and file:line tables
+that anchor the **Current state** and **Impact map** sections — trace how a feature works today, map
+a struct's methods, find call sites, scope touched files. Routing rules:
+
+- **code-diver flag.** On a stack-semantic gap (concurrency, framework lifecycle, ORM behavior) it
+  flags `→ needs <specialist>`. Spawn that specialist for just that finding.
+- **Smart-skip.** Request already semantic (thread-safety, reactivity, ORM/query, framework
+  internals) → skip code-diver, spawn the specialist directly.
+- **Pass the tree.** Escalating from a flag → hand code-diver's tree/table into the specialist
+  spawn as context; it does only the semantic step, no re-trace.
+
+Route the rest by capability: schema and migrations to the database agent, cross-cutting design to
+the architecture review agent, test strategy to the QA agent. Reach for a language engineering agent
+only when the analysis needs stack-specific depth code-diver cannot provide (concurrency-safety
+review, framework internals). If several fit, pick the most specific. If none fits, use
+`general-purpose`.
 
 ## Output
 

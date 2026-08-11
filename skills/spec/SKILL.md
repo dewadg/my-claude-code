@@ -43,7 +43,7 @@ Three jobs: **create** a spec (default, steps below), **search** prior specs (se
 
    Default to single inline pass: read key source, existing patterns, contracts the change touches. Keeps token cost low for common case.
 
-   Fan out parallel investigators only when change genuinely large or spans multiple projects — e.g. touches many files, crosses package/repo boundaries, or has unknowns several focused reads resolve faster in parallel. Spawn one `Agent` per project or per subsystem (investigator/Explore-style), each returning short structured summary, then synthesize. If you fan out, say so briefly so user knows the cost.
+   Fan out parallel investigators only when change genuinely large or spans multiple projects — e.g. touches many files, crosses package/repo boundaries, or has unknowns several focused reads resolve faster in parallel. Spawn one **code-diver** per project/subsystem; each returns a call-graph tree or file:line table of how the touched code works today, then synthesize. Routing rules for a code-diver finding: on a `→ needs <specialist>` flag (stack-semantic gap), spawn that specialist for just that finding and **pass code-diver's tree** into the spawn as context (semantic step only, no re-trace); **smart-skip** code-diver entirely for areas already known to need semantic depth (thread-safety, reactivity, ORM/query, framework internals) — spawn the specialist direct. If you fan out, say so briefly so user knows the cost.
 
    Draft **Testing** section inline (pre-test requirements + scenario table, see template). No subagent needed.
 

@@ -25,6 +25,7 @@ skills, MCP servers) plus a system prompt.
 | `api-documenter` | API docs, OpenAPI specs, doc portals, generated code examples |
 | `architect-reviewer` | System design decisions, architectural patterns, technology choices |
 | `code-reviewer` | Code quality, security vulnerabilities, best practices |
+| `code-diver` | Read-only codebase exploration — trace call flow (call-graph tree), locate symbols (file:line table); spawned by `analyze`/`investigate`/`spec` for code reading, escalates to a specialist on a stack-semantic gap |
 | `compliance-auditor` | GDPR / CCPA obligations, data practices, privacy gaps |
 | `db-admin` | Query performance, HA architecture, disaster recovery |
 | `docker-eng` | Designing, building, running, optimizing containers |
@@ -49,7 +50,17 @@ These agents are from [awesome-claude-code-subagents](https://github.com/VoltAge
 
 These three share one shape: plan the work as tasks, delegate every project-level unit to a
 subagent, compile the result into a note. They route to agents by capability rather than by name, so
-adding an agent to `agents/` makes it usable without touching a skill.
+adding an agent to `agents/` makes it usable without touching a skill. For code reading and tracing
+they spawn `code-diver` by default, escalating to a language specialist only when `code-diver` flags
+a stack-semantic gap (`→ needs <specialist>`) — `smart-skip` sends semantic-flavored requests
+straight to the specialist, `pass-tree` hands `code-diver`'s output to it so the specialist does only
+the semantic step.
+
+### Code reading
+
+| Skill | Use for |
+|---|---|
+| `call-graph` | Render how code flows as an indented call-graph tree — one node per call hop with `file:line`. Fires on explicit invoke or "explain how X works" |
 
 | Skill | Use for | Not for |
 |---|---|---|
