@@ -1,6 +1,6 @@
 ---
 name: hoppscotch-import
-description: Generate a Hoppscotch-importable collection JSON from any source of endpoint definitions — OpenAPI/Swagger spec, route-registration code, a Postman collection, a HAR file, or a plain list of endpoints. Use this whenever the user asks to "create a hoppscotch import file", "generate a hoppscotch collection", "export endpoints to hoppscotch", "turn this OpenAPI spec into a Hoppscotch collection", or wants API endpoints importable into Hoppscotch. Not for making requests against a running API (use http-api-test) or for authoring API documentation.
+description: Generate a Hoppscotch-importable collection JSON from any source of endpoint definitions — OpenAPI/Swagger spec, route-registration code, a Postman collection, a HAR file, or a plain list of endpoints. Use this whenever the user asks to "create a hoppscotch import file", "generate a hoppscotch collection", "export endpoints to hoppscotch", "turn this OpenAPI spec into a Hoppscotch collection", or wants API endpoints importable into Hoppscotch. Not for making requests against a running API (use http-request) or for authoring API documentation.
 allowed-tools: Read, Glob, Grep, Write, Edit, WebFetch, Bash(find *), Bash(grep *), Bash(python3 *)
 ---
 

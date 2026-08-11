@@ -1,5 +1,5 @@
 ---
-name: http-api-test
+name: http-request
 description: >
   Make HTTP requests against a running server with curl and read back the status code, response body,
   and latency. ALWAYS use when the user wants to hit, call, probe, or test an HTTP API endpoint —

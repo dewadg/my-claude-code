@@ -5,7 +5,7 @@ description: >
   case. ALWAYS use when the user asks to write, add, or rewrite a Go unit test — e.g. "write unit
   tests for this handler", "cover this method", "add a test case for the error path". Also use when
   an existing Go test is not table-driven and needs to be brought into the standard shape. Not for
-  integration or HTTP endpoint testing (use http-api-test).
+  integration or HTTP endpoint testing (use http-request).
 effort: medium
 ---
 
