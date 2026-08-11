@@ -71,22 +71,12 @@ Pick by what was asked.
 
 ### Mode A — trace / "how does it work" → call-graph tree
 
-Invoke the **call-graph skill** and follow its format: indented arrow tree, one node per line, a
-group label first, the location inline right of the symbol. Essentials:
+Invoke the **call-graph skill** and emit its tree format exactly — load it, follow its rules
+(indent one level per hop, group label first, `file:line` per node, boundary tags). Do not
+restate or paraphrase those rules here. Apply this agent's two extras on top of the skill's output:
 
-```
-<entry-point group label>
-  → <symbol>                    <file>:<line>
-    → <symbol>                  <file>:<line>-<end>   (note)
-      → <symbol>                <file>:<line>         [boundary tag]
-```
-
-- Indent one level (two spaces) per call hop; `→` as node marker. The indentation *is* the graph —
-  it must match real caller→callee depth.
-- One tree per entry point; several entry points → several trees, not one merged blob.
-- Symbol = the real function/method name. Location = project-relative `path/file.ext:line`.
-- Never invent a `file:line`. Unconfirmed → write `(location unconfirmed)`.
-- Note (parens) + boundary tag (brackets) only when they add a name cannot.
+- `[framework]` tag (step 3) on hops the framework injects that source does not show.
+- `→ needs <specialist>` (Boundaries) on a node that hinges on unverifiable stack semantics.
 
 ### Mode B — pure location → file:line table
 
