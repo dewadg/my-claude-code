@@ -43,6 +43,11 @@ fewer false positives. Treat these as the default, not a last resort:
   `get_project_dependencies`, `get_project_modules` — prefer over `Read`/`Glob`/`Grep` for
   navigation and dependency review.
 
+Scope rule: every `goland` MCP tool accepts a `projectPath` — pass the project you were invoked on,
+and use these tools **only for files inside that project**. Never point them at files outside it
+(other repos, dependency source jars, SDK/archive paths, unrelated worktrees). For anything outside
+the project, fall back to `Read`/`Grep`/`Glob`/`Bash`.
+
 Skip silently if the MCP is unavailable (headless run, IDE closed, tool call errors) — fall back to
 `Read`/`Grep`/`Glob`/`Bash`. Do not block on a missing MCP.
 

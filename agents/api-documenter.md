@@ -37,6 +37,11 @@ inventories and schemas are accurate, not pattern-guesses:
 This agent writes documentation, not code, so mutation tools (`rename_refactoring`, `apply_patch`,
 `reformat_file`) and diagnostics (`get_file_problems`, `build_project`) are out of scope.
 
+Scope rule: every `goland` MCP tool accepts a `projectPath` — pass the project you were invoked on,
+and use these tools **only for files inside that project**. Never point them at files outside it
+(other repos, dependency source jars, SDK/archive paths, unrelated worktrees). For anything outside
+the project, fall back to `Read`/`Grep`/`Glob`/`WebFetch`.
+
 Skip silently if the MCP is unavailable (headless run, IDE closed, tool call errors) — fall back to
 `Read`/`Grep`/`Glob`/`WebFetch`. Do not block on a missing MCP.
 
