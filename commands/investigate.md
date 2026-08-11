@@ -1,24 +1,19 @@
 ---
-name: investigate
-description: >
-  Investigate an issue across one or more projects, breaking the investigation into tasks delegated
-  across specialized subagents and compiling the findings into a root-cause note.
-  Use when the user reports something broken, wrong, or unexplained and wants the cause found —
-  e.g. "investigate TICKET-123", "why is X returning empty", "users report Y is failing", "find the
-  root cause of Z", "this regressed after the last release".
-  Not for scoping a new feature (analyze it instead) or for writing the fix itself.
+description: Investigate a reported issue across one or more projects — break it into delegated tasks, find the root cause, compile findings into a note.
+argument-hint: [issue, symptom, or ticket to investigate]
 allowed-tools: Read, Grep, Glob, Bash, Task, AskUserQuestion, TaskCreate, TaskGet, TaskList, TaskUpdate, Skill
 ---
 
 # Investigate
 
-Break a complex investigation into tasks delegated across subagents. Output is a note.
+Break a complex investigation into tasks delegated across subagents. Output is a root-cause note.
 
-**Input**: the description of the issue. May be a ticket number, and may name the related projects.
+**Input**: `$ARGUMENTS` — the description of the issue. May be a ticket number, and may name the
+related projects.
 
 ## Steps
 
-1. **If no input provided, ask what issue the user hit**
+1. **If `$ARGUMENTS` is empty, ask what issue the user hit**
 
    Use the **AskUserQuestion tool** (open-ended, no preset options) to ask:
    > "What issue are you currently facing?"
@@ -28,13 +23,16 @@ Break a complex investigation into tasks delegated across subagents. Output is a
 
 2. **Create the investigation note**
 
-   **IMPORTANT**: Use the **note-write skill** and the **note-search skill** to write notes.
-   Search the existing notes first — a past investigation may already cover this area.
+   **IMPORTANT**: Use the **note-search skill** first — a past investigation may already cover this
+   area.
+
+   Then invoke the **rca-write skill** to create the RCA note. rca-write owns and enforces the RCA
+   note format (section template, conditional sections, cross-cutting checks) and builds on the
+   note-write skill's frontmatter and filename conventions. This creates the note skeleton — every
+   core section header in place — that will hold the investigation results.
 
    If a ticket number is given and an issue-tracker MCP is connected (Jira, Linear, GitHub issues),
    fetch the ticket for context.
-
-   This creates the note that will hold the investigation results.
 
 3. **List impacted projects**
 
@@ -67,11 +65,30 @@ Break a complex investigation into tasks delegated across subagents. Output is a
    explains every part of the reported symptom. Record the theories you ruled out and why — that is
    what stops the same ground being re-covered later.
 
+## Explaining code flow — use the call-graph skill
+
+Whenever you explain how code flows — the path from entry point to the defect, a suspect function's
+calls, who calls a symbol, a request's journey through layers — render it with the **call-graph
+skill**, not prose. Invoke the skill via the **Skill tool** and emit its indented arrow tree (one
+node per call hop, each carrying `file:line`). This applies whether you trace inline or hand off to
+`code-diver`:
+
+- The note's **Evidence** section anchors on these trees/tables — the code path from entry to defect
+  is the tree.
+- The note's **Flow diagram** uses the call-graph tree for the failure's code path. (A mermaid
+  sequence/flowchart is still right when the failure crosses components or services — async/message
+  flow, request path across services — pick by what is being shown, but a code call path is always
+  the tree.)
+- The chat TLDR references the same tree when it needs to show the mechanism.
+
+Do not paraphrase a traced path as prose when the call-graph tree can carry it. The tree is the
+format for code flow.
+
 ## Choosing subagents
 
 Do not rely on a fixed roster — pick from the agent types available to the `Agent` tool in this
-session, so newly added agents are used without this skill changing. If you need to enumerate them,
-run `ls .claude/agents/ ~/.claude/agents/`.
+session, so newly added agents are used without this command changing. If you need to enumerate
+them, run `ls .claude/agents/ ~/.claude/agents/`.
 
 **Default for code reading: spawn `code-diver`.** It returns call-graph trees and file:line tables
 that anchor the **Evidence**, **Root cause**, and **Blast radius** sections — trace entry → defect,
@@ -96,53 +113,6 @@ After all tasks are done, report back to the user in chat:
 - Whether a workaround exists to unblock users now
 - Any open question that blocks the fix
 - The path to the investigation note
-
-## Note guidelines
-
-The note is a root-cause document. Someone who was not in the investigation should be able to read
-it, reproduce the bug, agree with the diagnosis, and ship the fix. Scale the depth to the issue, but
-never drop the core sections.
-
-### Core sections (always)
-
-- **Frontmatter** — per the note-write skill (tags incl. ticket number, projects, related)
-- **TLDR** — symptom, root cause, blast radius, and fix verdict in five lines or fewer
-- **Symptom and impact** — what users see, who is affected, since when, which environments, severity
-- **Reproduction** — exact steps to reproduce in a development environment, with the prerequisites
-  (data, account, feature flag), plus observed vs. expected behaviour
-- **Evidence** — the logs, data, network traces, and code paths that support the diagnosis, anchored
-  with `file:line` references
-- **Flow diagram** — a mermaid diagram (sequence or flowchart) when the failure crosses components
-  or services: the request path from entry to the defect, async/message flow, or the failure
-  mechanism step by step. Skip for single-function bugs — the prose is enough.
-- **Ruled out** — theories investigated and discarded, each with the reason
-- **Root cause** — the single defect: where it lives (`file:line`) and the mechanism by which it
-  produces the symptom
-- **Regression origin** — the commit, PR, or release that introduced it, and when (if the behaviour
-  ever worked)
-- **Blast radius** — other call sites, environments, or data affected by the same defect
-- **Workaround** — how to unblock users right now (IF POSSIBLE), and its risks
-- **Fix options** — table: `option | scope | risk | effort`, with the recommended one and why
-- **Verification** — how to prove the fix works, and the regression test to add so it stays fixed
-- **Rollout** — hotfix vs. normal release, deploy order across repos, feature flag, any data cleanup
-  or backfill the fix requires
-- **Open questions** — each with an owner
-- **References** — ticket, related notes, dashboards, logs
-
-### Conditional sections (only when the issue triggers them)
-
-Data corruption and backfill · security or privacy exposure · multi-tenancy · performance and load ·
-customer communication.
-
-### Cross-cutting checks
-
-Call these out explicitly whenever the issue touches them:
-
-- **Shipped vs. source**: confirm the defect exists on the version actually deployed to the affected
-  environment, not only on the development branch
-- **Shared contracts**: does the fix require a shared package or event schema bump, and which
-  consumers must follow?
-- **Deploy order**: which service must ship before which client
 
 ## Guardrails
 

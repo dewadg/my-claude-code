@@ -1,67 +1,73 @@
 ---
-name: spec
+name: spec-write
 description: >
-  Write a lean single-file spec (specs/{slug}.md) that plans a change end-to-end BEFORE any code is
-  written — context, goals/non-goals, flow diagram, decisions (ADR-lite), configurations, testing,
-  and a dependency-wave todo where every task names the specialized subagent that should
-  own it. Use whenever the user wants to spec out, plan, or design a feature, change, or fix before
-  implementing it — e.g. "spec out the auth refactor", "plan the new export endpoint", "let's design
-  X before we build it", "write a spec for", or just "/spec". Reach for it whenever planning,
-  scoping-to-a-decision, or "what would it take to build" intent shows up, even if the word "spec"
-  is never used. Also archives a shipped or abandoned spec to specs/archives/{YYYY-MM-DD}-{slug}.md
-  — use when the user says "archive the spec", "archive <slug>", "/spec archive", or wants to shelve
-  a done spec. Do NOT use for: implementing already-decided work (use /code), investigating an
-  unexplained bug to find its cause (use /investigate), or open-ended impact analysis with no
-  commitment to a plan (use /analyze).
-allowed-tools: Read, Grep, Glob, Bash, Write, Edit, AskUserQuestion, Agent, Skill, WebFetch, WebSearch
+  Write or search a lean single-file spec at specs/{slug}.md — owns the spec FORMAT: the frontmatter
+  schema, the section template (context, goals/non-goals, flow, ADR-lite decisions, configurations,
+  testing, open questions, dependency-wave todo), the lean principles, and the search recipes. Use
+  whenever the user wants a spec written, formatted, or searched — e.g. "write a spec for", "format
+  this as a spec", "find specs about", or just "/spec" (the command invokes this skill). This skill
+  does the formatting and the file mechanics only — it does NOT fan out investigator subagents or
+  drive the research process; for a change needing multi-project research, the /spec command
+  orchestrates the investigators first, then calls this skill to format the result. Do NOT use for:
+  implementing already-decided work (use /code), investigating an unexplained bug to find its cause
+  (use /investigate), open-ended impact analysis with no commitment to a plan (use /analyze), or
+  archiving a shipped or abandoned spec (use spec-archive).
+allowed-tools: Read, Grep, Glob, Bash, Write, Edit, AskUserQuestion
 ---
 # Spec
 
-Turn change idea into one build-ready file: `specs/{slug}.md`. Spec commits to decisions + parallelizable plan, so next step just `/code` executing todo. Work order: research, decisions, then writing.
+This skill owns the spec **file format** and mechanics: the frontmatter schema, the section template,
+the lean principles, and how specs are searched. It does not own the research process — spawning
+investigator subagents, tracing code flow, or committing to decisions is the `/spec` command's job —
+and it does not own archiving (that is the `spec-archive` skill). When fired directly (not via
+`/spec`), assemble the caller's input into the template, ask if intent is unclear, and write the file;
+do light grounding reads only, never fan out agents.
 
-Three jobs: **create** a spec (default, steps below), **search** prior specs (see Search), or **archive** a done one (see Archive). Route on intent — "archive the X spec" jumps to Archive; "find specs about Y", "what specs touch Z", "is there already a spec for W", or "/spec search" jumps to Search.
+Two jobs: **create** a spec (default, below) or **search** prior specs (see Search). Route on intent
+— "find specs about Y", "what specs touch Z", "is there already a spec for W", or "/spec search"
+jumps to Search. Archiving a done spec ("archive the X spec", "/spec archive") is the `spec-archive`
+skill's job, not this one.
 
-**Input**: description of what to build or change. May be ticket number, feature name, or prose.
+**Input**: description of what to build or change, plus any research/decisions the caller already
+made. May be a ticket number, feature name, or prose.
 
-## Steps
+## Create
 
 1. **If no clear input, ask**
 
    Use **AskUserQuestion tool** (open-ended, no preset options):
    > "What change do you want to spec? Describe what you want to build or fix."
 
-   Do NOT proceed without understanding intent. From answer, derive kebab-case slug (e.g. "add user authentication" becomes `add-user-auth`).
+   Do NOT proceed without understanding intent. From the answer, derive kebab-case slug (e.g. "add user authentication" becomes `add-user-auth`).
 
-2. **Ground yourself**
+2. **Light grounding (no fan-out)**
 
-   - Note-search skill available, run it — prior note may already hold analysis or decisions. Don't re-derive what's written down.
-   - Search prior specs by topic or project (see Search) — a related or superseded spec may already hold decisions worth reusing. Cheap: reads frontmatter only.
-   - Read `CLAUDE.md` / `AGENTS.md` of every project the change touches. Project conventions override your defaults, tell you tech stack (which picks subagents later).
-   - Slug already exists in `specs/`, read it — ask user whether to continue or overwrite before doing anything.
+   - Search prior specs by topic or project (see Search) — a related or superseded spec may already
+     hold decisions worth reusing. Cheap: reads frontmatter only.
+   - Read `CLAUDE.md` / `AGENTS.md` of every project the change touches — conventions override
+     defaults, and the tech stack tells you which owner agent to name in the Todo.
+   - Slug already exists in `specs/`, read it — ask user whether to continue or overwrite before
+     doing anything.
 
-3. **Research — inline by default, fan out when it pays**
+   If the change needs real research or multi-project investigation, stop and tell the user to run
+   `/spec` — that command fans out investigators and hands the result back here for formatting.
 
-   Default to single inline pass: read key source, existing patterns, contracts the change touches. Keeps token cost low for common case.
+3. **Write `specs/{slug}.md`**
 
-   Fan out parallel investigators only when change genuinely large or spans multiple projects — e.g. touches many files, crosses package/repo boundaries, or has unknowns several focused reads resolve faster in parallel. Spawn one **code-diver** per project/subsystem; each returns a call-graph tree or file:line table of how the touched code works today, then synthesize. Routing rules for a code-diver finding: on a `→ needs <specialist>` flag (stack-semantic gap), spawn that specialist for just that finding and **pass code-diver's tree** into the spawn as context (semantic step only, no re-trace); **smart-skip** code-diver entirely for areas already known to need semantic depth (thread-safety, reactivity, ORM/query, framework internals) — spawn the specialist direct. If you fan out, say so briefly so user knows the cost.
+   `mkdir -p specs/` if needed, then write the single file using the template below. Start with the
+   frontmatter block: set `status` to `draft`, `created` and `updated` to today, and fill `tags` /
+   `projects` / `ticket` / `description`. Fill every applicable section; omit ones that don't apply.
+   Keep prose tight — bullets over paragraphs, one idea per line.
 
-   Draft **Testing** section inline (pre-test requirements + scenario table, see template). No subagent needed.
+4. **Hand off**
 
-4. **Commit to decisions**
-
-   Spec that lists options without picking is analysis, not plan. For every meaningful fork, state choice, reason, alternatives rejected (see Decisions template below). Fork genuinely unresolved, park in Open Questions — but keep that list short.
-
-5. **Write `specs/{slug}.md`**
-
-   `mkdir -p specs/` if needed, then write single file using template below. Start with the frontmatter block at the top of the template: set `status` to `draft`, `created` and `updated` to today, and fill `tags` / `projects` / `ticket` / `description` from your research. Fill every applicable section; omit ones that don't apply. Keep prose tight — bullets over paragraphs, one idea per line.
-
-6. **Hand off**
-
-   Summarize in chat: spec path, decisions made (one line each), wave count, any Open Questions needing user. Tell `/code` to honor the checkbox contract under Todo: check off each task `[x]` in the spec as its subagent completes it. End with: "Review the spec, then run `/code` to implement."
+   Summarize in chat: spec path, decisions recorded (one line each), wave count, any Open Questions
+   needing the user. End with: "Review the spec, then run `/code` to implement."
 
 ## The spec.md template
 
-Use this structure. Section order intentional — context and goals before flow, decisions before work they shape, open questions parked near end, todo last as executable plan.
+Use this structure. Section order intentional — context and goals before flow, decisions before work
+they shape, open questions parked near end, todo last as executable plan.
 
 ```markdown
 ---
@@ -150,8 +156,9 @@ package or project with a clear "done". Group related edits one agent would hand
 a single task with sequential sub-bullets — don't split them into parallel spawns that each re-pay
 the overhead for trivia. Reserve a parallel wave for tasks that are genuinely independent and each
 big enough that the overhead is small relative to the work (typically different projects or different
-stacks needing different agents). Every task names the single subagent that owns it (route by
-capability — see "Picking subagents" below) and the files/package it lands in.
+stacks needing different agents). Every task names the single subagent that owns it — route by
+capability, not a fixed roster (the `/spec` command lists the routing rules) — and the files/package
+it lands in.
 
 **Checkbox contract.** The Todo list is the source of truth for progress. Every task starts as `[ ]`.
 The instant a task's owning subagent reports its work complete, flip that one checkbox to `[x]` in the
@@ -178,27 +185,6 @@ merge into one.
 - [ ] [code-reviewer] review all waves
 - [ ] [general-purpose] build + test green (`make build && make test`)
 ```
-
-## Picking subagents
-
-Do not hardcode a roster — right agent depends on stack, new agents appear over time. Discover what's available this session:
-
-```bash
-ls .claude/agents/ ~/.claude/agents/ 2>/dev/null
-```
-
-Route by capability, not by name (mirror `/code`'s rule):
-
-- Service / backend: engineering agent for that language (`golang-eng`, `js-eng`, …)
-- Web frontend: framework agent (`vue-eng`, `react-eng`, …)
-- Test strategy, E2E, browser verification: `qa-eng`
-- Review of any produced diff: `code-reviewer`
-- Containers, compose, images: `docker-eng`
-- Schema, migrations, query performance: `db-admin`
-- Cross-cutting design / architecture: `architect-reviewer`
-- None fits: `general-purpose`
-
-One subagent per project per task — two agents editing same project concurrently conflict. Independent projects (or independent files in one project) can share a wave.
 
 ## Lean principles (apply throughout)
 
@@ -251,27 +237,11 @@ Prints the frontmatter block (status, tags, projects, description, dates) and ex
 ### Reporting results
 List each hit as one line — slug, status, description — pulled from frontmatter. Mark any hit under `archives/` as archived, and rank live specs above archived ones. If a live and an archived spec cover the same topic, prefer the live one and mention the archived as prior context — it may hold the original decisions the live one refined.
 
-## Archive
-
-Move shipped or abandoned spec out of live set into `specs/archives/`. Trigger on "archive the spec", "archive `<slug>`", "/spec archive", or any shelving intent.
-
-1. **Identify the target.** Slug named in request; if none named, `ls specs/*.md` and ask which (AskUserQuestion). If `specs/{slug}.md` doesn't exist, say so and stop — don't guess.
-2. **Check the todo list.** Re-read the spec from disk and scan the Todo section. If every box is `[x]`, it shipped clean — proceed. If unchecked `[ ]` items remain, surface them and ask (AskUserQuestion): is this shipped-but-incomplete or abandoned? For shipped-incomplete, record which tasks were dropped under a new `## Incomplete` heading before moving; for abandoned, record that fact under the heading. Never archive with `[ ]` items unaccounted for — the archive must reflect reality, not a false "done".
-3. **Date-stamp + finalize status.** Set frontmatter `status` to `shipped` (clean) or `abandoned` (abandoned), and set `updated` to today's `YYYY-MM-DD`. Edit the spec on disk before the move so the archive reflects reality.
-4. **Move it** (not copy):
-   ```bash
-   mkdir -p specs/archives
-   mv specs/{slug}.md specs/archives/{YYYY-MM-DD}-{slug}.md
-   ```
-5. **Confirm** the destination path.
-
-If `specs/archives/{YYYY-MM-DD}-{slug}.md` already exists, ask overwrite vs skip before replacing.
-Archiving removes the spec from `specs/` — it is no longer a live spec.
-
 ## Guardrails
 
 - Write exactly one file: `specs/{slug}.md`.
-- Do not create branches, tags, commits, or tracker issues unless user asks — planning not an outward-facing action.
+- Do not create branches, tags, commits, or tracker issues unless user asks — formatting/planning, not an outward-facing action.
+- Do not spawn investigator subagents — that is the `/spec` command's role. If research is needed beyond light grounding, defer to `/spec`.
 - If context critically unclear, use AskUserQuestion — but prefer reasonable committed decision over endless hedging; that's what Open Questions is for.
 - Re-read existing spec from disk before editing it; user may have changed it since you last saw it.
-- Report faithfully: couldn't verify something during research, say so in Open Questions rather than papering over it.
+- Report faithfully: couldn't verify something, say so in Open Questions rather than papering over it.

@@ -17,6 +17,9 @@ are not tracked here — this repo is a curated subset, not a mirror.
 - `agents/*.md` — one subagent per file. Frontmatter + system prompt.
 - `skills/<name>/SKILL.md` — one skill per directory. Supporting scripts live alongside
   (e.g. `skills/telegram-notify/scripts/send_telegram.sh`).
+- `commands/*.md` — one user-invoked slash command per file. Frontmatter (`description`,
+  `argument-hint`, `allowed-tools`) + prompt body; `$ARGUMENTS` expands to what the user typed after
+  the command name. The body is the prompt sent on `/name`, so it reads as instructions to Claude.
 - `.mcp.json` — MCP servers (`context7`, `gitlab`, `goland`, `chrome`). Secrets are
   `${ENV_VAR}` references, never literals.
 
@@ -56,32 +59,48 @@ effort: medium                # optional
 
 Descriptions carry the routing burden — they are how Claude decides to fire the skill. Write them
 with concrete trigger phrases and, where a sibling skill overlaps, an explicit exclusion (see
-`analyze` vs `investigate` vs `code`, which disambiguate each other in their own descriptions).
+`spec-write` vs `code`, which disambiguate each other in their own descriptions). The same applies to
+command `description` frontmatter — `analyze` and `investigate` exclude each other and `code`.
 
 ## Cross-cutting contracts
 
 These span multiple files; changing one means changing the others.
 
-**Notes.** `note-write` and `note-search` define a shared note format that `analyze`, `investigate`,
-and `code` all depend on: files at `.notes/` (or wherever `CLAUDE.md` says), named
+**Notes.** `note-write` and `note-search` define a shared note format that the `analyze` and
+`investigate` commands and the `code` skill all depend on: files at `.notes/` (or wherever
+`CLAUDE.md` says), named
 `{YYYY}-{MM}-{DD}[-{TICKET}]-descriptive-slug.md`, with frontmatter `tags`, `projects`, `created`,
 `updated`, `related`, `description`. `note-search` greps those exact fields — if the frontmatter
-schema changes in `note-write`, `note-search`'s grep recipes must change with it.
+schema changes in `note-write`, `note-search`'s grep recipes must change with it. The `rca-write`
+skill owns the RCA note BODY section template (root-cause sections) on top of `note-write`'s
+frontmatter/filename format; the `investigate` command invokes `rca-write` to compile the RCA note.
+The `design-write` skill owns the design-doc note BODY section template (analysis sections) the same
+way; the `analyze` command invokes `design-write` to compile the design-doc note. If either skill's
+section template changes, the command that references those sections must change with it.
 
-**Specs.** The `spec` skill writes single-file specs at `specs/{slug}.md` (live) and archives shipped
-or abandoned ones to `specs/archives/{YYYY-MM-DD}-{slug}.md`. Each spec carries frontmatter `status`
-(`draft` | `in-progress` | `shipped` | `abandoned`), `created`, `updated`, `tags`, `projects`,
-`ticket`, `related`, `description` — `tags`/`projects`/`created`/`updated`/`related`/`description`
-match the note schema deliberately. The skill's **Search** job greps these exact fields and
-awk-extracts the frontmatter block only, so look-back never reads a spec body. If the spec
-frontmatter schema changes, those grep recipes and the template's frontmatter block must change
-with it.
+**Specs.** The `spec-write` skill (driven explicitly by the `/spec` command, auto-fired by its own
+description) writes single-file specs at `specs/{slug}.md` (live); the `spec-archive` skill moves
+shipped or abandoned ones to `specs/archives/{YYYY-MM-DD}-{slug}.md`. Each spec carries frontmatter
+`status` (`draft` | `in-progress` | `shipped` | `abandoned`), `created`, `updated`, `tags`,
+`projects`, `ticket`, `related`, `description` — `tags`/`projects`/`created`/`updated`/`related`/
+`description` match the note schema deliberately. `spec-write`'s **Search** job greps these exact
+fields and awk-extracts the frontmatter block only, so look-back never reads a spec body. `spec-archive`
+finalizes only `status` and `updated` — the rest of the schema must stay intact so Search still
+routes. If the spec frontmatter schema changes, those grep recipes and the template's frontmatter block
+must change with it.
 
-**Orchestrator skills.** `analyze`, `investigate`, and `code` share one architecture: plan with
-TaskCreate/TaskUpdate, delegate every project-level unit of work to a subagent, compile into a note.
-They deliberately do **not** hardcode an agent roster — they route by capability ("a service backend
-→ the engineering agent for that language") so that adding an agent to `agents/` makes it usable
-without editing any skill. Preserve that indirection; do not introduce agent-name lists into skills.
+**Orchestrators.** The `analyze` and `investigate` commands and the `code` skill share one
+architecture: plan with TaskCreate/TaskUpdate, delegate every project-level unit of work to a
+subagent, compile into a note (`investigate` compiles into an RCA note whose format `rca-write`
+owns; `analyze` compiles into a design-doc note whose format `design-write` owns; both still depend
+on `note-write`/`note-search` for file mechanics). They deliberately do **not** hardcode an agent
+roster — they route by
+capability ("a service backend → the engineering agent for that language") so that adding an agent to
+`agents/` makes it usable without editing any command or skill. Preserve that indirection; do not
+introduce agent-name lists into commands or skills. `analyze` and `investigate` also share a code-flow
+contract: when they explain how code flows, they render it with the `call-graph` skill (indented
+arrow tree), never prose — so changes to the `call-graph` output format affect what those commands
+emit.
 
 **Skill/agent references.** An agent's `skills:` entries and a skill's name must match real
 directories under `skills/`; `mcpServers:` entries must match keys in `.mcp.json`. Renaming a skill

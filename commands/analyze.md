@@ -1,12 +1,6 @@
 ---
-name: analyze
-description: >
-  Analyze existing projects for a new feature development, breaking the analysis into tasks
-  delegated across specialized subagents and compiling the results into a note.
-  Use when the user wants to scope, assess the impact of, or plan a new feature or change before
-  building it — e.g. "analyze TICKET-123", "what would it take to build X", "which projects are
-  impacted by Y", "scope this feature before we implement it".
-  Not for diagnosing an existing bug (investigate the cause instead) or for writing the code.
+description: Scope a new feature or change across one or more projects before building it — break the analysis into delegated tasks and compile the results into a note.
+argument-hint: [ticket or feature/change to analyze]
 allowed-tools: Read, Grep, Glob, Bash, Task, AskUserQuestion, TaskCreate, TaskGet, TaskList, TaskUpdate, Skill
 ---
 
@@ -14,12 +8,12 @@ allowed-tools: Read, Grep, Glob, Bash, Task, AskUserQuestion, TaskCreate, TaskGe
 
 Break a complex analysis into tasks delegated across subagents. Output is a note.
 
-**Input**: the description of the feature or change to be developed. May be a ticket number, and
-may name the related projects.
+**Input**: `$ARGUMENTS` — the description of the feature or change to be developed. May be a ticket
+number, and may name the related projects.
 
 ## Steps
 
-1. **If no input provided, ask what the user wants**
+1. **If `$ARGUMENTS` is empty, ask what the user wants**
 
    Use the **AskUserQuestion tool** (open-ended, no preset options) to ask:
    > "What do you want to analyze?"
@@ -28,13 +22,15 @@ may name the related projects.
 
 2. **Create the analysis note**
 
-   **IMPORTANT**: Use the **note-write skill** and the **note-search skill** to write notes.
-   Search the existing notes first — a past note may already cover this area.
+   **IMPORTANT**: Use the **note-search skill** first — a past note may already cover this area.
+
+   Then invoke the **design-write skill** to create the design-doc note. design-write owns and
+   enforces the design-doc note format (section template, conditional sections, cross-cutting
+   checks) and builds on the note-write skill's frontmatter and filename conventions. This creates
+   the note skeleton — every core section header in place — that will hold the analysis results.
 
    If a ticket number is given and an issue-tracker MCP is connected (Jira, Linear, GitHub issues),
    fetch the ticket for context.
-
-   This creates the note that will hold the analysis results.
 
 3. **List impacted projects**
 
@@ -66,11 +62,28 @@ may name the related projects.
    c. **If a finding requires user input** (unclear context), use the **AskUserQuestion tool** to
       clarify, then continue.
 
+## Explaining code flow — use the call-graph skill
+
+Whenever you explain how code flows — how a feature works today, a request's path, a call chain,
+a struct's methods and what they call — render it with the **call-graph skill**, not prose. Invoke
+the skill via the **Skill tool** and emit its indented arrow tree (one node per call hop, each
+carrying `file:line`). This applies whether you trace inline or hand off to `code-diver`:
+
+- The note's **Current state** section anchors on these trees/tables.
+- The note's **Flow diagram** uses the call-graph tree for code call paths. (A mermaid
+  sequence/flowchart is still right for cross-service request/data flow, deploy order, or state
+  transitions — pick by what is being shown, but a code call path is always the tree.)
+- Any chat explanation of flow given back to the user is the tree too, never a paragraph or an
+  arrow-crammed one-liner.
+
+Do not paraphrase a traced path as prose when the call-graph tree can carry it. The tree is the
+format for code flow.
+
 ## Choosing subagents
 
 Do not rely on a fixed roster — pick from the agent types available to the `Agent` tool in this
-session, so newly added agents are used without this skill changing. If you need to enumerate them,
-run `ls .claude/agents/ ~/.claude/agents/`.
+session, so newly added agents are used without this command changing. If you need to enumerate
+them, run `ls .claude/agents/ ~/.claude/agents/`.
 
 **Default for code reading: spawn `code-diver`.** It returns call-graph trees and file:line tables
 that anchor the **Current state** and **Impact map** sections — trace how a feature works today, map
@@ -96,47 +109,6 @@ After all tasks are done, report back to the user in chat:
 - The recommended approach and why it beat the alternatives
 - Any open question that blocks implementation
 - The path to the analysis note
-
-## Note guidelines
-
-The note is a design doc a reviewer should be able to approve or reject without reading the code.
-Scale the depth to the change, but never drop the core sections.
-
-### Core sections (always)
-
-- **Frontmatter** — per the note-write skill (tags incl. ticket number, projects, related)
-- **TLDR** — what, why, and the verdict (size + risk) in five lines or fewer
-- **Context** — ticket acceptance criteria, current behaviour, why now
-- **Scope** — in scope / out of scope / assumptions
-- **Current state** — per project, how it works today, anchored with `file:line` references
-- **Impact map** — table: `project | layer | files | new vs. modify | effort`
-- **Proposed change** — per project: API contract, data model and migrations, events, config and
-  env vars
-- **Flow diagram** — a mermaid diagram (sequence, flowchart, or C4) when the change has moving
-  parts worth visualizing: request/data flow across services, component interaction, deploy order,
-  or state transitions. Skip for trivial single-file changes — the prose is enough.
-- **Alternatives considered** — the options, their tradeoffs, and why the recommended one wins
-- **Risks and drawbacks** — table: `risk | impact | mitigation`
-- **Feature flag and rollout** — is a flag needed (name, default, kill switch); deploy order across
-  repos and services
-- **Test strategy** — unit / integration / E2E coverage plus manual QA scenarios
-- **Delivery plan** — work breakdown in dependency order, PR split per repo, sizing
-- **Open questions** — each with an owner
-- **References** — ticket, designs, related notes
-
-### Conditional sections (only when the change triggers them)
-
-Data backfill and migration · backward compatibility and versioning · multi-tenancy · auth and
-permission model · i18n · performance and load · security and privacy.
-
-### Cross-cutting checks
-
-Call these out explicitly whenever the change touches them:
-
-- **Generated artifacts**: does an API spec, client, schema type, or mock need regenerating?
-- **Shared contracts**: does a shared package or event schema need a version bump, and which
-  consumers must follow?
-- **Deploy order**: which service must ship before which client, and what deployment config follows
 
 ## Guardrails
 
