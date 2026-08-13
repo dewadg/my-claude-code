@@ -3,7 +3,7 @@ name: golang-eng
 description: "Use when building Go applications requiring concurrent programming, high-performance systems, microservices, or cloud-native architectures where idiomatic patterns, error handling excellence, and efficiency are critical."
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet
-effort: high
+effort: medium
 color: blue
 skills:
   - golang-unit-test

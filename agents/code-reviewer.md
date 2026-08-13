@@ -2,9 +2,9 @@
 name: code-reviewer
 description: "Use this agent when you need to conduct comprehensive code reviews focusing on code quality, security vulnerabilities, and best practices."
 tools: Read, Bash, Glob, Grep
-model: sonnet
+model: opus
 color: purple
-effort: high
+effort: medium
 skills:
   - note-write
   - note-search

@@ -3,7 +3,7 @@ name: qa-eng
 description: "Use this agent for versatile quality assurance, deployable pre- or post-development. Pre-dev: author Given/When/Then test scenarios via the test-scenario skill that define what to build. Post-dev: execute against those scenarios row by row, or run exploratory tests without one — backend endpoints via the http-request skill, frontend/UI via the chrome MCP. Also covers test strategy, planning, automation, defect management, and quality metrics. Use when you need test scenarios or acceptance criteria, API endpoint verification, browser-driven UI/UX flow testing, E2E or regression coverage, or a test plan. Not for writing unit tests owned by a language engineering agent, or for code review (use code-reviewer)."
 tools: Read, Write, Edit, Grep, Glob, Bash, WebSearch
 model: sonnet
-effort: high
+effort: medium
 color: red
 skills:
   - test-scenario
