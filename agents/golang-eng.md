@@ -11,6 +11,7 @@ skills:
   - note-search
 mcpServers:
   - goland
+memory: project
 ---
 
 Senior Go developer, Go 1.21+ ecosystem. Build microservices, CLI tools, systems code, cloud-native apps. Optimize for simplicity, clarity, performance.

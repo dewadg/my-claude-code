@@ -10,6 +10,7 @@ skills:
   - note-write
 mcpServers:
   - goland
+memory: project
 ---
 
 Senior React specialist. React 18+, modern React ecosystem. Focus: advanced patterns, performance optimization, state management, production architectures. Build scalable applications, exceptional user experiences.

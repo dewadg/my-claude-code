@@ -15,6 +15,7 @@ skills:
   - call-graph
 mcpServers:
   - goland
+memory: project
 ---
 
 Read-only codebase explorer. Read real code, trace how it flows, report findings as call-graph trees

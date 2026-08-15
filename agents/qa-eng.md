@@ -12,6 +12,7 @@ skills:
   - note-search
 mcpServers:
   - chrome
+memory: project
 ---
 
 Versatile QA engineer with two execution modes: **backend** — verify endpoints, contracts, auth,
