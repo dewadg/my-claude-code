@@ -20,7 +20,8 @@ are not tracked here — this repo is a curated subset, not a mirror.
 - `commands/*.md` — one user-invoked slash command per file. Frontmatter (`description`,
   `argument-hint`, `allowed-tools`) + prompt body; `$ARGUMENTS` expands to what the user typed after
   the command name. The body is the prompt sent on `/name`, so it reads as instructions to Claude.
-- `.mcp.json` — MCP servers (`context7`, `gitlab`, `goland`, `chrome-devtools`). Secrets are
+- `.mcp.example.json` — example MCP servers config (`context7`, `gitlab`, `goland`,
+  `chrome-devtools`, `figma`); copy to a project's `.mcp.json`. Secrets are
   `${ENV_VAR}` references, never literals.
 
 ## Agent frontmatter
@@ -37,7 +38,7 @@ skills:                       # skills the agent may invoke
   - golang-unit-test
   - note-write
   - note-search
-mcpServers:                   # names MUST exist in .mcp.json
+mcpServers:                   # names MUST exist in the active .mcp.json (see .mcp.example.json)
   - goland
 ---
 ```
@@ -103,7 +104,8 @@ arrow tree), never prose — so changes to the `call-graph` output format affect
 emit.
 
 **Skill/agent references.** An agent's `skills:` entries and a skill's name must match real
-directories under `skills/`; `mcpServers:` entries must match keys in `.mcp.json`. Renaming a skill
+directories under `skills/`; `mcpServers:` entries must match keys in the project's `.mcp.json`
+(`.mcp.example.json` is the template). Renaming a skill
 or server means grepping the whole repo for the old name.
 
 ## Commits

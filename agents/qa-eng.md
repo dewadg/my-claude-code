@@ -12,6 +12,7 @@ skills:
   - note-search
 mcpServers:
   - chrome-devtools
+  - figma
 memory: project
 ---
 

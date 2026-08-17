@@ -13,8 +13,9 @@ cp -R skills/* ~/.claude/skills/
 cp commands/*.md ~/.claude/commands/
 ```
 
-`.mcp.json` is a project-scoped MCP config; copy it into a project (or merge into `~/.claude.json`)
-and export the env vars it references: `CONTEXT7_API_KEY`, `GITLAB_PAT`.
+`.mcp.example.json` is a sample project-scoped MCP config; copy it into a project as `.mcp.json`
+(or merge into `~/.claude.json`) and export the env vars it references: `CONTEXT7_API_KEY`,
+`GITLAB_PAT`, `FIGMA_API_KEY`.
 
 ## Agents
 
@@ -122,15 +123,16 @@ Both produce description text only — they never create the ticket or open the 
 
 ## MCP servers
 
-`.mcp.json` wires up:
+`.mcp.example.json` wires up:
 
 - **context7** — up-to-date library/framework docs
 - **gitlab** — issues, merge requests, pipelines
 - **goland** — IDE integration (local, `127.0.0.1:64422`)
 - **chrome-devtools** — browser driving for UI testing
+- **figma** — Figma design metadata (figma-context-mcp) for design-vs-implementation checks
 
 Agents opt into servers via their `mcpServers:` frontmatter, so a server name here must match the key
-in `.mcp.json`.
+in `.mcp.json` (copied from `.mcp.example.json`).
 
 ## License
 

@@ -5,6 +5,9 @@
 # Local Claude Code overrides (not part of the shared config)
 .claude/settings.local.json
 
+# Real MCP config — only the .mcp.example.json template is tracked
+.mcp.json
+
 # Secrets — this repo must only ever reference credentials as ${ENV_VAR}
 .env
 .env.*

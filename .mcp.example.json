@@ -32,6 +32,18 @@
         "chrome-devtools-mcp@latest",
         "--autoConnect"
       ]
+    },
+    "figma": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "figma-developer-mcp@v0.11.0",
+        "--stdio"
+      ],
+      "env": {
+        "FIGMA_API_KEY": "${FIGMA_API_KEY}"
+      }
     }
   }
 }
