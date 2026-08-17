@@ -20,7 +20,7 @@ are not tracked here — this repo is a curated subset, not a mirror.
 - `commands/*.md` — one user-invoked slash command per file. Frontmatter (`description`,
   `argument-hint`, `allowed-tools`) + prompt body; `$ARGUMENTS` expands to what the user typed after
   the command name. The body is the prompt sent on `/name`, so it reads as instructions to Claude.
-- `.mcp.json` — MCP servers (`context7`, `gitlab`, `goland`, `chrome`). Secrets are
+- `.mcp.json` — MCP servers (`context7`, `gitlab`, `goland`, `chrome-devtools`). Secrets are
   `${ENV_VAR}` references, never literals.
 
 ## Agent frontmatter

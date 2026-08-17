@@ -25,7 +25,7 @@
       "url": "http://127.0.0.1:64422/stream",
       "headers": {}
     },
-    "chrome": {
+    "chrome-devtools": {
       "type": "stdio",
       "command": "npx",
       "args": [
