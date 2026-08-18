@@ -24,23 +24,17 @@ Break coding instruction into tasks, orchestrate specialized subagents. Output: 
 
    **IMPORTANT**: do NOT proceed without understanding what user wants built.
 
-2. **Ground yourself before editing**
-
-   - Ticket number given + issue-tracker MCP connected (Jira, Linear, GitHub issues): fetch ticket for context.
-   - Note-search skill available: run it — past note may already carry analysis, root cause, decisions. Do not re-derive what written down.
-   - Read `CLAUDE.md` / `AGENTS.md` of every project about to touch. Project conventions there override your defaults.
-
-3. **List impacted projects**
+2. **List impacted projects**
 
    From description, or determine yourself. Goal: know each impacted project's tech stack (Go, React, JavaScript, infra) — that selects the subagent.
 
-4. **Plan the work**
+3. **Plan the work**
 
    Track with TaskCreate, TaskGet, TaskList, TaskUpdate. Single tracking system for this skill — no parallel todo list.
 
-   Decide changes before writing code, record as tasks in dependency order (shared contracts before consumers; backend before frontend calling it). Every behavioural change gets test task alongside when project supports one.
+   Decide changes before writing code, record as tasks in dependency order (shared contracts before consumers; backend before frontend calling it). Every behavioral change gets test task alongside when project supports one.
 
-5. **Delegate, then review**
+4. **Delegate, then review**
 
    Loop tasks in dependency order.
 
@@ -72,12 +66,12 @@ One subagent per project per task — two agents editing same project concurrent
 
 ## Briefing subagents
 
-Give each subagent: goal, files or package to work in, applicable project conventions (that project's `CLAUDE.md` / `AGENTS.md`), what "done" means (build passes, tests pass). Point at source files, not restated spec. Scope to what asked — no opportunistic refactors.
+Give each subagent: goal, files or package to work in, applicable project conventions, what "done" means (build passes, tests pass). Point at source files, not restated spec. Scope to what asked — no opportunistic refactors.
 
 Standing conventions every subagent follows:
 
 - **Tests**: testing skill exists for language (example: Go unit-test skill): use it. Otherwise match existing test style in that project.
-- **Comments**: comments, test names, story descriptions explain code behaviour and intent. No review tags, ticket numbers, task ids.
+- **Comments**: comments, test names, story descriptions explain code behavior and intent. No review tags, ticket numbers, task ids.
 - **Generated code**: never hand-edit generated files (API clients, schema types, mocks, API docs). Change source of truth, re-run generator.
 
 ## Verifying
