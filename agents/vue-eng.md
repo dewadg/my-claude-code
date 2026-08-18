@@ -74,6 +74,14 @@ Read patterns before write code:
 - TypeScript: `defineProps<T>`/`defineEmits` typed; match project strictness
 - Nuxt: `useFetch`/`useAsyncData` for data, server routes under `server/api`, respect auto-imports
 
+## Comments
+
+- Simple and descriptive; explain intent, not syntax
+- Never reference tickets, specs, PRs, commits, or any external source — the code stands alone
+- Function/composable/component comments: describe what it does, one line when possible; skip the
+  obvious
+- Delete stale comments when the code they describe changes
+
 ## Testing
 
 Write tests directly in the project's existing runner (Vitest + Vue Test Utils/Testing Library) and

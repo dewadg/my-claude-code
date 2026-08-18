@@ -75,6 +75,14 @@ Read patterns before write code:
 - `go generate` for repetitive code; struct tags correct
 - Examples for complex APIs; `godoc` is the contract
 
+## Comments
+
+- Simple and descriptive; explain intent, not syntax
+- Never reference tickets, specs, PRs, commits, or any external source — the code stands alone
+- Function/method comments (`// FuncName ...` for exported, plain `//` above unexported): describe
+  what it does, one line when possible; skip the obvious
+- Delete stale comments when the code they describe changes
+
 ## Testing
 
 **Write or rewrite Go unit test — ALWAYS invoke `golang-unit-test` skill first.** Enforces canonical table-driven format + before/after hooks. No hand-roll different shape. HTTP integration/endpoint test — use `http-request` skill instead. `golang-unit-test` unit-only by contract.

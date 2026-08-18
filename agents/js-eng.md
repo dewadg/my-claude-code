@@ -72,6 +72,14 @@ Read patterns before write code:
 - No prototype tricks, no `__proto__`/`Proxy` metaprogramming without a stated reason
 - Types: match the project — TS if present, JSDoc if not; introduce neither unasked
 
+## Comments
+
+- Simple and descriptive; explain intent, not syntax
+- Never reference tickets, specs, PRs, commits, or any external source — the code stands alone
+- Function/method comments (JSDoc when the project uses it, plain `//` otherwise): describe what it
+  does, one line when possible; skip the obvious
+- Delete stale comments when the code they describe changes
+
 ## Testing
 
 Write tests directly in the project's existing runner (Jest/Vitest/`node:test`) and follow its

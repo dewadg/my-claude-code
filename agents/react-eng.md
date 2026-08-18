@@ -74,6 +74,13 @@ Read patterns before write code:
 - Concurrent features where they fit: `useTransition`/`useDeferredValue` for input-driven updates
 - TypeScript: match project strictness; props typed, no `any`
 
+## Comments
+
+- Simple and descriptive; explain intent, not syntax
+- Never reference tickets, specs, PRs, commits, or any external source — the code stands alone
+- Function/hook/component comments: describe what it does, one line when possible; skip the obvious
+- Delete stale comments when the code they describe changes
+
 ## Testing
 
 Write tests directly in the project's existing runner (RTL + Jest/Vitest) and follow its
