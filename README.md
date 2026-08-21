@@ -103,6 +103,7 @@ must stay in sync.
 | `golang-unit-test` | Go table-driven tests with before/after hooks |
 | `http-request` | Drive HTTP endpoints with curl and verify responses |
 | `test-scenario` | Given/When/Then test scenarios as a markdown table — happy, alternate, edge, error paths |
+| `defect-report` | Shared severity-tagged findings format (tier table, finding line, totals) — `code-reviewer` and `qa-eng` both emit through it |
 | `hoppscotch-import` | Generate a Hoppscotch collection JSON from an OpenAPI spec, route code, Postman, HAR, or plain list |
 
 ### Writing
@@ -127,7 +128,7 @@ Both produce description text only — they never create the ticket or open the 
 
 - **context7** — up-to-date library/framework docs
 - **gitlab** — issues, merge requests, pipelines
-- **goland** — IDE integration (local, `127.0.0.1:64422`)
+- **goland** — IDE integration (local, `127.0.0.1:64422`); main conversation only, not wired into agents
 - **chrome-devtools** — browser driving for UI testing
 - **figma** — Figma design metadata (figma-context-mcp) for design-vs-implementation checks
 

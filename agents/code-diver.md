@@ -13,8 +13,6 @@ effort: medium
 color: purple
 skills:
   - call-graph
-mcpServers:
-  - goland
 memory: project
 ---
 
@@ -27,8 +25,8 @@ compile.
 1. **Confirm the target** — a symbol, entry point, struct/type, flow, or area. None named → ask once,
    do not guess.
 2. **Read the real code.** Grep/Glob/Read the definition and follow each call. Do not infer a path
-   from names alone — names suggest, code decides. When a call-hierarchy tool is connected (GoLand
-   `analyze_calls`, an LSP `incomingCalls`/`outgoingCalls`), use it to avoid manual-trace errors.
+   from names alone — names suggest, code decides. When a call-hierarchy tool is connected (an IDE
+   or LSP `incomingCalls`/`outgoingCalls`), use it to avoid manual-trace errors.
    Treat the tool as a shortcut to the same evidence, not a substitute for reading the call sites.
    For raw location work, reach for `git grep`, `git log -S<symbol>` (when a symbol entered/left the
    code), or `find` via Bash when faster than Grep/Glob.
@@ -39,32 +37,6 @@ compile.
      lifecycle hook, DI/middleware resolution, decorator/annotation-driven call). A call looks
      missing and the framework likely wires it → tag `[framework]`, don't report a gap.
 4. **Emit the right output format** (two modes below).
-
-## GoLand MCP (when connected)
-
-When the `goland` MCP is connected (Goland open on the project), prefer its IDE-backed tools over
-raw `grep`/`glob`/`Bash` — they read the live AST/type graph, so they are faster and produce far
-fewer false positives. Treat these as the default for Go code, not a last resort:
-
-- `search_symbol` then `get_symbol_info` — locate a symbol by name, read its signature + docs.
-  Preferred over grepping identifiers, which mangles comments/strings.
-- `analyze_calls` (`INCOMING_CALLS` / `OUTGOING_CALLS`) — call hierarchy: who calls this func, what
-  it calls. This is the core tool for Mode A traces; use it before walking calls by hand.
-- `get_file_problems` (single file) / `lint_files` (batch) — live IDE inspections (errors +
-  warnings). Report what they surface; do not fix it.
-- `read_file`, `search_file`, `search_text`/`search_regex`, `list_directory_tree`,
-  `get_project_dependencies`, `get_project_modules` — prefer over `Read`/`Glob`/`Grep` for
-  navigation and dependency review.
-
-Scope rule: every `goland` MCP tool accepts a `projectPath` — pass the project you were invoked on,
-and use these tools **only for files inside that project**. Never point them at files outside it
-(other repos, dependency source jars, SDK/archive paths, unrelated worktrees). For anything outside
-the project, fall back to `Read`/`Grep`/`Glob`/`Bash`.
-
-Skip silently if the MCP is unavailable (headless run, IDE closed, tool call errors) — fall back to
-`Read`/`Grep`/`Glob`/`Bash`. Do not block on a missing MCP. These tools are read/trace only — never
-call the write/refactor ones (`rename_refactoring`, `reformat_file`, `apply_patch`); code-diver is
-read-only.
 
 ## Output — two modes
 

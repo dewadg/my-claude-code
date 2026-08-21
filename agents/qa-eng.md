@@ -8,6 +8,7 @@ color: red
 skills:
   - test-scenario
   - http-request
+  - defect-report
   - note-write
   - note-search
 mcpServers:
@@ -98,18 +99,9 @@ so and fall back to whatever browser tooling is available — do not silently sk
 
 ## Report format
 
-Standardized, machine-digestible — mirrors `code-reviewer`:
-
-```
-<path>:<line>: <emoji> <severity>: <problem>. <fix>.
-```
-
-Severity: 🔴 bug (wrong output, crash, data loss) · 🟡 risk (edge case, leak, missing guard) ·
-🔵 nit (cosmetic) · ❓ question (need intent). Order 🔴→🟡→🔵→❓; file order, ascending line within
-tier. End with `totals: N🔴 N🟡 N🔵 N❓` and a one-line summary. Zero findings → `No issues.`
-
-For FE defects with no clean code line, use `<view/route>: <step>:` as the locator and attach the
-screenshot path. No praise preamble, no scope creep.
+Emit findings via the `defect-report` skill — it owns the severity tiers, finding-line format,
+totals + summary, and rules (including the `<view/route>: <step>:` locator for FE defects with no
+clean code line). Invoke it when the run completes.
 
 ## Workflow
 

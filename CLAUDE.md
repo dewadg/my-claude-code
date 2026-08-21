@@ -22,7 +22,8 @@ are not tracked here — this repo is a curated subset, not a mirror.
   the command name. The body is the prompt sent on `/name`, so it reads as instructions to Claude.
 - `.mcp.example.json` — example MCP servers config (`context7`, `gitlab`, `goland`,
   `chrome-devtools`, `figma`); copy to a project's `.mcp.json`. Secrets are
-  `${ENV_VAR}` references, never literals.
+  `${ENV_VAR}` references, never literals. `goland` is main-conversation-only — no agent carries it
+  in `mcpServers:`.
 
 ## Agent frontmatter
 
@@ -39,7 +40,7 @@ skills:                       # skills the agent may invoke
   - note-write
   - note-search
 mcpServers:                   # names MUST exist in the active .mcp.json (see .mcp.example.json)
-  - goland
+  - chrome-devtools
 ---
 ```
 
@@ -102,6 +103,11 @@ introduce agent-name lists into commands or skills. `analyze` and `investigate` 
 contract: when they explain how code flows, they render it with the `call-graph` skill (indented
 arrow tree), never prose — so changes to the `call-graph` output format affect what those commands
 emit.
+
+**Findings.** The `defect-report` skill owns the severity-tagged finding-report format (tier table,
+finding-line shape, totals line, rules) shared by the `code-reviewer` and `qa-eng` agents; both
+invoke it instead of restating the format. If the format changes there, both agents' reports
+change with it.
 
 **Skill/agent references.** An agent's `skills:` entries and a skill's name must match real
 directories under `skills/`; `mcpServers:` entries must match keys in the project's `.mcp.json`

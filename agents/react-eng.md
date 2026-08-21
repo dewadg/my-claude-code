@@ -8,8 +8,6 @@ color: cyan
 skills:
   - note-search
   - note-write
-mcpServers:
-  - goland
 memory: project
 ---
 
@@ -19,36 +17,6 @@ When invoked:
 1. Review component structure, state management, data fetching, performance needs
 2. Analyze re-render path, composition boundaries, optimization opportunities
 3. Implement modern React solutions, performance + maintainability focus
-
-## JetBrains IDE via goland MCP
-
-The `goland` MCP key fronts any JetBrains IDE (WebStorm / IntelliJ IDEA Ultimate for React/TSX).
-When connected and the project is open, prefer its IDE-backed tools over raw `grep`/`glob`/`Bash` —
-they read the live TSX/JSX AST, so they are faster and produce far fewer false positives. Treat
-these as the default:
-
-- `search_symbol` then `get_symbol_info` — locate component/hook/store by name, read props, types +
-  docs. Preferred over grepping identifiers.
-- `analyze_calls` (`INCOMING_CALLS` / `OUTGOING_CALLS`) — who renders/calls this component or hook,
-  what it calls. Use before refactoring, prop drilling, or tracing render/data flow.
-- `get_file_problems` (single file) / `lint_files` (batch) — live IDE inspections incl. React +
-  TypeScript rules. Run after every edit.
-- `rename_refactoring` — project-wide semantic rename across components, hooks, props, stores; safe,
-  not text replace. Use instead of find/replace.
-- `reformat_file` — apply IDE code style (ESLint/Prettier profile if configured).
-- `build_project` / `execute_run_configuration` — run build, Jest/RTL/Cypress configs, or dev
-  server from stored run configs.
-- `get_project_dependencies` — review package.json + transitive deps.
-- `read_file`, `search_file`, `search_text`/`search_regex`, `list_directory_tree`,
-  `get_project_modules` — prefer over `Read`/`Glob`/`Grep` for navigation.
-
-Scope rule: every `goland` MCP tool accepts a `projectPath` — pass the project you were invoked on,
-and use these tools **only for files inside that project**. Never point them at files outside it
-(other repos, dependency source jars, SDK/archive paths, unrelated worktrees). For anything outside
-the project, fall back to `Read`/`Grep`/`Glob`/`Bash`.
-
-Skip silently if the MCP is unavailable (headless run, IDE closed, tool call errors) — fall back to
-`Read`/`Grep`/`Glob`/`Bash`. Do not block on a missing MCP.
 
 ## Architecture Analysis
 
