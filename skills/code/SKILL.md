@@ -34,17 +34,21 @@ Break coding instruction into tasks, orchestrate specialized subagents. Output: 
 
    Decide changes before writing code, record as tasks in dependency order (shared contracts before consumers; backend before frontend calling it). Every behavioral change gets test task alongside when project supports one.
 
-4. **Delegate, then review**
+4. **Delegate, then review once for the whole change**
 
-   Loop tasks in dependency order.
+   Loop implementation tasks in dependency order.
 
    a. **ALWAYS delegate project-level investigation, coding, testing to subagent.** Never edit inline.
 
-   b. **Continue until every task done.**
+   b. **No review until every implementing subagent finished.** Independent tasks run parallel; each subagent pauses when done. Review is batch-level, never per-subagent or per-project — separate reviews burn duplicate rounds and miss cross-boundary mismatches (frontend calling backend contract).
 
-   c. **Every change reviewed by code-review subagent.** Phases strictly sequential: implementing subagent finishes task, pauses — never keep it running or start review while it works. Review returns findings: **resume same implementing subagent** (SendMessage with name or agent ID, findings verbatim), not fresh spawn — resumed agent applies fixes from context already held; fresh agent re-reads codebase to rebuild context, burns tokens for nothing. Then re-review. Bound at two rounds — findings survive second round, stop, bring to user.
+   c. **One review pass: single code-review subagent, single invocation, full combined diff across every touched project.** Reviewer gets the whole working-tree diff of all touched repos in one briefing, not one diff per agent.
 
-   d. **If something genuinely unclear**: use **AskUserQuestion tool** to clarify, then continue.
+   d. Review returns findings: split by project, **resume the same implementing subagents** (SendMessage with name or agent ID, findings verbatim, each its slice only), not fresh spawns — resumed agents apply fixes from context already held. Fixes for different projects run parallel; same-project findings go to that project's agent in one message.
+
+   e. All fixes in: re-review the full combined diff once, same way. Bound at two rounds total — findings survive the second pass, stop, bring to user.
+
+   f. **If something genuinely unclear**: use **AskUserQuestion tool** to clarify, then continue.
 
 ## Choosing subagents
 
