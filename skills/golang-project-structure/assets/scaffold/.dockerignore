@@ -1,0 +1,9 @@
+.git/
+.env
+**/.env
+bin/
+.notes/
+.claude/
+.idea/
+.vscode/
+.DS_Store

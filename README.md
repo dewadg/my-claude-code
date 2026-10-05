@@ -101,6 +101,7 @@ must stay in sync.
 | Skill | Use for |
 |---|---|
 | `golang-unit-test` | Go table-driven tests with before/after hooks |
+| `golang-project-structure` | Scaffold, extend, audit, or migrate a Go service onto the fx + cobra + caarlos0/env + goose + OTel + slog layout; ships a runnable scaffold and `scripts/audit.sh` |
 | `http-request` | Drive HTTP endpoints with curl and verify responses |
 | `test-scenario` | Given/When/Then test scenarios as a markdown table — happy, alternate, edge, error paths |
 | `defect-report` | Shared severity-tagged findings format (tier table, finding line, totals) — `code-reviewer` and `qa-eng` both emit through it |
