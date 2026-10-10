@@ -44,6 +44,18 @@
       "env": {
         "FIGMA_API_KEY": "${FIGMA_API_KEY}"
       }
+    },
+    "mobile-device": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@srmorete/mobile-device-mcp@latest"
+      ],
+      "env": {
+        "MDMS_PORT_ANDROID": "18000",
+        "MDMS_PORT_IOS": "19000"
+      }
     }
   }
 }

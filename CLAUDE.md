@@ -21,7 +21,7 @@ are not tracked here — this repo is a curated subset, not a mirror.
   `argument-hint`, `allowed-tools`) + prompt body; `$ARGUMENTS` expands to what the user typed after
   the command name. The body is the prompt sent on `/name`, so it reads as instructions to Claude.
 - `.mcp.example.json` — example MCP servers config (`context7`, `gitlab`, `goland`,
-  `chrome-devtools`, `figma`); copy to a project's `.mcp.json`. Secrets are
+  `chrome-devtools`, `figma`, `mobile-device`); copy to a project's `.mcp.json`. Secrets are
   `${ENV_VAR}` references, never literals. `goland` is main-conversation-only — no agent carries it
   in `mcpServers:`.
 
