@@ -33,7 +33,7 @@ skills, MCP servers) plus a system prompt.
 | `docker-eng` | Designing, building, running, optimizing containers |
 | `golang-eng` | Go services, concurrency, cloud-native systems |
 | `js-eng` | Modern JavaScript — browser, Node.js, Bun, full-stack |
-| `qa-eng` | Versatile QA — BE endpoints via http-request, FE/UI via chrome-devtools MCP, plus test strategy, automation, quality metrics |
+| `qa-eng` | Versatile QA — BE endpoints via hurl (hurl-write / hurl-run), FE/UI via chrome-devtools MCP, plus test strategy, automation, quality metrics |
 | `react-eng` | React 18+ performance, state management, component architecture |
 | `security-auditor` | Security audits, vulnerability analysis, compliance gaps |
 | `vue-eng` | Vue 3 Composition API, reactivity, Nuxt 3 |
@@ -102,7 +102,8 @@ must stay in sync.
 |---|---|
 | `golang-unit-test` | Go table-driven tests with before/after hooks |
 | `golang-project-structure` | Scaffold, extend, audit, or migrate a Go service onto the fx + cobra + caarlos0/env + goose + OTel + slog layout; ships a runnable scaffold and `scripts/audit.sh` |
-| `http-request` | Drive HTTP endpoints with curl and verify responses |
+| `hurl-write` | Author `.hurl` HTTP test scenario files — chained requests, captures, asserts, variables/secrets |
+| `hurl-run` | Execute `.hurl` files or one-off stdin requests with hurl; exit-code verdict, debug + report flags |
 | `test-scenario` | Given/When/Then test scenarios as a markdown table — happy, alternate, edge, error paths |
 | `defect-report` | Shared severity-tagged findings format (tier table, finding line, totals) — `code-reviewer` and `qa-eng` both emit through it |
 | `hoppscotch-import` | Generate a Hoppscotch collection JSON from an OpenAPI spec, route code, Postman, HAR, or plain list |

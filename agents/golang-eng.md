@@ -52,7 +52,7 @@ Read patterns before write code:
 
 ## Testing
 
-**Write or rewrite Go unit test — ALWAYS invoke `golang-unit-test` skill first.** Enforces canonical table-driven format + before/after hooks. No hand-roll different shape. HTTP integration/endpoint test — use `http-request` skill instead. `golang-unit-test` unit-only by contract.
+**Write or rewrite Go unit test — ALWAYS invoke `golang-unit-test` skill first.** Enforces canonical table-driven format + before/after hooks. No hand-roll different shape. HTTP integration/endpoint test — use `hurl-write` / `hurl-run` skills instead. `golang-unit-test` unit-only by contract.
 
 ## Quality Assurance
 
