@@ -122,6 +122,7 @@ Both produce description text only — they never create the ticket or open the 
 | Skill | Use for |
 |---|---|
 | `glab-release` | Cut a GitLab release: pick prev tag, build a conventional-commit changelog, tag |
+| `gitlab-security-scan` | Add Free-tier security scans to GitLab CI: per-package Semgrep SAST, osv-scanner dependency scan, JUnit scan report in the Tests tab, Renovate MRs |
 | `telegram-notify` | Ping me on Telegram when a long-running job or watch condition resolves |
 
 ## MCP servers

@@ -1,0 +1,18 @@
+# Accepted-risk allowlist for the `dependency scan` job (osv-scanner). One file
+# covers every scanned lockfile. An entry silences the advisory and all of its
+# aliases (CVE, GHSA, GO ids) until `ignoreUntil` passes; after that the finding
+# fails the scan again.
+#
+# Entries apply to EVERY scanned lockfile, not just the one that prompted them. Write
+# the reason so it names the lockfile it holds for, and only add an id when the reason is
+# true wherever that advisory can match (a dev-only reason must not hide a shipped package).
+#
+# Every entry MUST carry:
+#   id           advisory id as printed in the job log
+#   ignoreUntil  expiry date, at most 90 days from the day the entry is added
+#   reason       why the risk is acceptable (e.g. "build-time only")
+#
+# [[IgnoredVulns]]
+# id = "GHSA-xxxx-xxxx-xxxx"
+# ignoreUntil = 2027-01-15
+# reason = "build-time only, never shipped in the image"

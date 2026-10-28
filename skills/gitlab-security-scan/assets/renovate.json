@@ -1,0 +1,28 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "timezone": "Asia/Jakarta",
+  "schedule": ["before 7am on monday"],
+  "prConcurrentLimit": 5,
+  "labels": ["dependencies"],
+  "postUpdateOptions": ["gomodTidy"],
+  "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "labels": ["dependencies", "security"]
+  },
+  "packageRules": [
+    {
+      "description": "<pkg>: minor and patch together",
+      "matchManagers": ["<gomod|npm|...>"],
+      "matchFileNames": ["<pkg-dir>/**"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "<pkg> dependencies"
+    },
+    {
+      "description": "Dockerfile base images and CI job images: minor and patch together",
+      "matchManagers": ["dockerfile", "gitlabci"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "docker images"
+    }
+  ]
+}
