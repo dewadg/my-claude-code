@@ -19,13 +19,17 @@ On the Dashboard access and Action suggestions comms screens, admins schedule em
 - The Dashboard access and Action suggestions comms screens exist
 - The Dimensions translations tab exists, so completeness can be evaluated
 
+# Design
+
+**Source** — [Comms translations (Figma)](https://www.figma.com) · snapshot 2026-03-02. The live design wins if it disagrees with a preview here.
+
+|#|Screen · state|Preview|Direction|AC|
+|---|---|---|---|---|
+|D1|**Dashboard access — comms screen** · chip visible|[Frame](https://www.figma.com)|Change to an existing screen: chip sits right of the existing "Missing comms translation" callout, same callout style.|AC 1|
+|D2|**Action suggestions — comms screen** · chip visible|[Frame](https://www.figma.com)|Same chip and placement as D1.|AC 4|
+|D3|**Missing dimensions translation modal** · open|[Frame](https://www.figma.com)|New modal; reuse the standard confirm-modal component. Focus lands on the primary button.|AC 3, AC 6|
+
 # Requirements
-
-**Design links**
-
-1. [Dashboard access — comms screen](https://www.figma.com)
-2. [Action suggestions — comms screen](https://www.figma.com)
-3. [Missing dimensions translation modal](https://www.figma.com)
 
 **Callout chip**
 
@@ -44,7 +48,7 @@ On the Dashboard access and Action suggestions comms screens, admins schedule em
 
 **States**
 
-- Chip: visible (translations missing), hidden (all complete). Modal: open, closed. For the exact interaction behaviour, refer to the [Figma design](https://www.figma.com).
+- Chip: visible (translations missing, see D1/D2), hidden (all complete). Modal: open (see D3), closed.
 
 # Errors & Edge Cases
 
@@ -109,4 +113,4 @@ On the Dashboard access and Action suggestions comms screens, admins schedule em
 - **Copy is quoted exactly.** Button labels, modal title, body text. Nothing for the dev to invent.
 - **Every conditional has both directions.** AC 1/2 and AC 4/5 are positive/negative pairs.
 - **ACs are repeated per screen rather than cross-referenced.** QA runs one at a time; "same as AC 1 but on the other screen" is where coverage quietly drops.
-- **Interaction detail is deferred to Figma** rather than transcribed, so the ticket doesn't drift from the design.
+- **The Design table carries the look, Requirements carry the behaviour.** Each row is a state with the ACs it proves; Direction says only what a picture can't (placement, reuse, focus), so the ticket doesn't drift from the design.

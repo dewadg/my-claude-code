@@ -104,6 +104,23 @@ contract: when they explain how code flows, they render it with the `call-graph`
 arrow tree), never prose — so changes to the `call-graph` output format affect what those commands
 emit.
 
+**Breakdown.** The `breakdown` skill orchestrates in the main thread (it must — it spawns
+`code-diver`, and subagents cannot spawn subagents): requirements `R1…Rn` → `business-impact` skill →
+code map → tickets per seam → estimate → prioritize → bodies via `ticket-description` → tracker via
+`glab`/`gh`. `business-impact` owns the framing block and the per-requirement value tags
+(`Core` / `Supporting` / `Speculative`); `breakdown/references/prioritization.md` maps those tags to
+its Value score — renaming a tag means changing both.
+
+**Design shots.** The `design-shot` skill renders Claude Design canvas boards (`project/*.dc.html`,
+indexed by `project/canvas.json`) locally with the canvas's own `artifact-type/dc-runtime.js` and
+screenshots them via `scripts/shot.mjs` (puppeteer-core in `~/.cache/design-shot`, checked by
+`scripts/check.sh`). `ticket-description` owns the ticket's **Design** section table
+(`# | Screen · state | Preview | Direction | AC`); design-shot's **Hand off** section emits draft rows
+in that shape (first three cells + Source line) — change the columns in both together. GitLab image upload
+(`scripts/gitlab-upload.sh`) happens only inside their confirmed tracker writes. If the Design
+artifact format changes (runtime path, `canvas.json` keys, `<dc-import>` prop passing), `shot.mjs`
+changes with it.
+
 **Findings.** The `defect-report` skill owns the severity-tagged finding-report format (tier table,
 finding-line shape, totals line, rules) shared by the `code-reviewer` and `qa-eng` agents; both
 invoke it instead of restating the format. If the format changes there, both agents' reports
