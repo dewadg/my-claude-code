@@ -1,6 +1,6 @@
 ---
 name: ticket-description
-description: Write the description body of a ticket/issue in a fixed section structure (Context/Background, Out of Scope, Pre-conditions, Requirements, Errors & Edge Cases, Acceptance Criteria with Given/When/Then), on any tracker — Jira, GitLab issues, GitHub issues, Linear, or no tracker at all. Use this whenever the user wants a ticket or issue description written, filled in, restructured, or fleshed out — including "fill USD-4300", "write the description for issue #42", "turn these notes into a story", "write the ACs", "this ticket is empty, flesh it out", "make this issue ready for dev", or when they paste rough requirements, a Slack thread, or a Figma link and expect a ticket out of it. Also use when reformatting an existing description that doesn't follow the structure. Produces the description text only; other fields (title, labels, points, assignee) are out of scope.
+description: Write the description body of a ticket/issue in a fixed section structure (Context/Background, Out of Scope, Pre-conditions, Design (tabular visual brief with screenshots per screen state, when there is UI), Requirements, Errors & Edge Cases, Acceptance Criteria with Given/When/Then), on any tracker — Jira, GitLab issues, GitHub issues, Linear, or no tracker at all. Use this whenever the user wants a ticket or issue description written, filled in, restructured, or fleshed out — including "fill USD-4300", "write the description for issue #42", "turn these notes into a story", "write the ACs", "this ticket is empty, flesh it out", "make this issue ready for dev", or when they paste rough requirements, a Slack thread, a Figma link, or a Claude Design canvas and expect a ticket out of it. Also use when reformatting an existing description that doesn't follow the structure. Produces the description text only; other fields (title, labels, points, assignee) are out of scope.
 ---
 
 # Ticket description
@@ -41,7 +41,9 @@ Work type matters more than what the tracker calls it. Jira gives you an issue t
 
 **Given raw notes / a pasted thread** — that text is your only source of truth. Everything in the output must trace back to a line in it, to a ticket you fetched, or to an answer the user gave you.
 
-**Given a Figma link** — put it under Requirements → Design links. Fetch it only if you actually need to describe on-screen behaviour that the notes don't cover; a link the reader can click is usually enough, and the ticket should point at the design rather than transcribe it.
+**Given a Figma link** — it goes in the **Design** section, one row per frame, the frame link in the Preview cell. Fetch it only if you actually need to describe on-screen behaviour that the notes don't cover; a link the reader can click is usually enough, and the ticket should point at the design rather than transcribe it.
+
+**Given a Claude Design canvas** (a claude.ai Design artifact link, or "the X design") — invoke the **design-shot skill** to find the screen(s) this ticket covers and screenshot them: the whole screen (mobile) or the part the ticket touches (desktop), plus every state the ACs name (error, loading, empty). Each shot becomes a row in the **Design** section. On GitLab the images upload only together with the confirmed description write (step 5), to the issue's own project; elsewhere the Preview cell holds the canvas link + board name instead.
 
 ## 3. Close the gaps before writing
 
@@ -68,11 +70,20 @@ Pick the shape by work type. Story is the default; the other two are the same sp
 
 - [What must already exist for this to be buildable/testable.]
 
+# Design
+
+**Source** — [Canvas or Figma file name](url) · design system: [name](url) · snapshot [YYYY-MM-DD]. The live design wins if it disagrees with a preview here.
+
+|#|Screen · state|Preview|Direction|AC|
+|---|---|---|---|---|
+|D1|**[Screen title]** (`Board`) · default|![Screen, default](/uploads/…/board.png){width=360}|[New / Change / Reuse `X`. What the picture can't show: interaction, responsive, focus.]|AC 1|
+|D2|**[Screen title]** · error|![Screen, error](/uploads/…/board-error.png){width=360}|[…]|AC 3|
+
+**Direction notes** [only when a row needs more than two sentences]
+
+- **D1** — [longer direction]
+
 # Requirements
-
-**Design links**
-
-1. [Screen name](figma-url)
 
 **[Sub-group, e.g. the component being added]**
 
@@ -88,7 +99,7 @@ Pick the shape by work type. Story is the default; the other two are the same sp
 
 **States**
 
-- [State: when visible/enabled vs not. Defer exact interaction detail to the design link.]
+- [State: when visible/enabled vs not — point at its Design row (`see D2`) instead of re-describing the look.]
 
 # Errors & Edge Cases
 
@@ -116,7 +127,7 @@ Same outer sections, but the middle becomes evidence instead of requirements:
 ```markdown
 # Context/Background
 # Steps to Reproduce      ← numbered, from a clean state, with the actual data used
-# Expected vs Actual      ← two labelled paragraphs, or a two-column table
+# Expected vs Actual      ← two labelled paragraphs, or a two-column table; a UI bug puts the design shot in Expected and the real screenshot in Actual (no separate Design section)
 # Scope/Impact            ← environments affected, which users, how often, since when
 # Errors & Edge Cases
 # Acceptance Criteria     ← at minimum one AC asserting the fixed behaviour
@@ -141,6 +152,16 @@ Strip it down; ceremony on a config change wastes everyone's time:
 
 **Out of Scope** — this section earns its keep by preventing scope creep in review, so it should list the things a reader *would* assume are in. "Historical surveys", "the existing X callout (unchanged)", "dashboard rendering (Dashboard squad)". Omit the heading entirely rather than writing "N/A".
 
+**Design** — the assignee's visual brief; include it whenever the ticket changes something on screen, omit the heading entirely otherwise (backend tickets, tasks). One row per screen **state** the ticket builds, so every UI state an AC names has a picture.
+
+- **Screen · state** — the screen's title as the design names it, the board/frame id in backticks (so a dev can find it in the canvas), and the state (`default`, `error`, `loading`, `empty`, or the part: `· form only`).
+- **Preview** — the image, thumbnail-sized so the table stays readable (`{width=360}` desktop crops, `{width=240}` mobile; GitLab opens full size on click). Desktop boards are wide — crop to the part the ticket touches rather than shrinking a whole page into an unreadable strip. No image possible → the canvas or Figma frame link.
+- **Direction** — what the picture can't say, ≤ 2 short sentences: is it **New**, a **Change** to an existing screen, or **Reuse** of an existing component (name it); interaction, transition, focus, and responsive behaviour; tokens over hex ("use `accent`, not `#8f6440`"). Never repeat copy here — exact copy lives in Requirements, quoted. Longer → a **Direction notes** bullet keyed by `D#`.
+- **AC** — the ACs this state proves, so QA can check the screen against the picture.
+- **Source** line — the live design link, the design system link if one exists, and the snapshot date: previews are frozen, the canvas keeps moving.
+
+Never let the table replace Requirements: the picture shows *what it looks like*, Requirements state *how it behaves*.
+
 **Requirements** — statements about behaviour, not implementation. Say what appears, when, and what it says; leave component names, hooks, and API shapes to the dev unless a specific technical constraint is genuinely part of the ask. Quote user-facing copy exactly and in quotes — copy that gets paraphrased here gets paraphrased into the product.
 
 Group with bold sub-headings when there's more than one moving part. Nested bullets carry the detail of the thing above them.
@@ -155,7 +176,7 @@ When the story spans two screens or flows, group the ACs under `##` headings and
 
 ## Formatting
 
-Write the description in markdown: `#` for section headings, `**bold**` for AC titles, Given/When/Then keywords, and sub-group labels within Requirements, `##` for AC group headings, and pipe tables for edge cases. Never use italic for a heading, sub-group label, or bullet label — bold everywhere. Keep the section names and their order exactly as above — that fixed vocabulary is the whole point.
+Write the description in markdown: `#` for section headings, `**bold**` for AC titles, Given/When/Then keywords, and sub-group labels within Requirements, `##` for AC group headings, and pipe tables for design and edge cases. No `|` inside a table cell or image alt text — it splits the row. `{width=…}` after an image is GitLab syntax; drop it on other trackers. Never use italic for a heading, sub-group label, or bullet label — bold everywhere. Keep the section names and their order exactly as above — that fixed vocabulary is the whole point.
 
 Markdown lands as-is on GitLab, GitHub, and Linear. Jira is the exception: older instances render wiki markup, and some Cloud APIs want ADF. Write markdown either way, and if the ticket you fetched came back in wiki markup or ADF, convert on the way in (so you can read it) and match the field's existing format on the way out (so you don't mangle it).
 
@@ -164,6 +185,8 @@ Markdown lands as-is on GitLab, GitHub, and Linear. Jira is the exception: older
 Print the finished description in a fenced code block so it can be copied verbatim. Then, if you're working on a real ticket, offer to write it:
 
 > Write this to USD-4300? (replaces the current description)
+
+If the Design section holds local screenshots (GitLab), say so in the same question — "…and upload 3 design images to group/project" — and on yes upload them first with design-shot's upload step, swap each local path for the returned `/uploads/…` markdown, then write the description.
 
 Only on an explicit yes, update it — and only the description field, using the write call for that tracker from the table in step 1.
 
