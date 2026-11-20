@@ -2,6 +2,9 @@
 .idea/
 .DS_Store
 
+# Notes and code-session journals are local-only — never committed
+.notes/
+
 # Local Claude Code overrides (not part of the shared config)
 .claude/settings.local.json
 

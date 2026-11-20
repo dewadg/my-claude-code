@@ -44,8 +44,11 @@ mcpServers:                   # names MUST exist in the active .mcp.json (see .m
 ---
 ```
 
-Body convention across agents: a role paragraph, a "When invoked" list, then phased workflow
-sections. Follow the shape of an existing agent when adding a new one.
+Two costs per agent: `description` loads into every session, the body on each invocation. Body
+convention: a role paragraph, then phased workflow sections — no standalone "When invoked" list,
+which belongs inside the workflow. Each rule is stated once; restatements are cut. Follow the shape
+of an existing agent when adding a new one. Quote `description` — an unquoted value containing `: `
+is invalid YAML.
 
 ## Skill frontmatter
 
@@ -59,7 +62,8 @@ effort: medium                # optional
 ---
 ```
 
-Descriptions carry the routing burden — they are how Claude decides to fire the skill. Write them
+Descriptions carry the routing burden — they are how Claude decides to fire the skill — and every
+skill's description is advertised in every session, so keep them short. Write them
 with concrete trigger phrases and, where a sibling skill overlaps, an explicit exclusion (see
 `spec-write` vs `code`, which disambiguate each other in their own descriptions). The same applies to
 command `description` frontmatter — `analyze` and `investigate` exclude each other and `code`.
@@ -79,6 +83,12 @@ frontmatter/filename format; the `investigate` command invokes `rca-write` to co
 The `design-write` skill owns the design-doc note BODY section template (analysis sections) the same
 way; the `analyze` command invokes `design-write` to compile the design-doc note. If either skill's
 section template changes, the command that references those sections must change with it.
+
+A `code` run with more than two tasks or more than one project also journals: the `code` skill owns
+the session directory (`.notes/code/{YYYY}-{MM}-{DD}[-{TICKET}]-{slug}/` holding the same-stem
+`-journal.md`, `recon-*`, `evidence-*`, `review-round-*`, `assets/`) and the journal skeleton; the
+main thread is the journal's single writer. Archived by one `mv` to `.notes/code/archive/`.
+`.notes/` is gitignored — never committed.
 
 **Specs.** The `spec-write` skill (driven explicitly by the `/spec` command, auto-fired by its own
 description) writes single-file specs at `specs/{slug}.md` (live); the `spec-archive` skill moves
@@ -104,8 +114,25 @@ contract: when they explain how code flows, they render it with the `call-graph`
 arrow tree), never prose — so changes to the `call-graph` output format affect what those commands
 emit.
 
-**Breakdown.** The `breakdown` skill orchestrates in the main thread (it must — it spawns
-`code-diver`, and subagents cannot spawn subagents): requirements `R1…Rn` → `business-impact` skill →
+**Delegation.** Briefs carry scope, not payload (paths and symbols, never pasted diffs or file
+bodies); reports are capped at ~15 lines and point at evidence paths; a thin report means resuming
+the same subagent with the gap, never redoing its work. The orchestrator verifies by reading and
+never runs builds, tests, or browsers itself. Verification splits along the builder/QA line: the
+implementing agent owns all build and test-script execution (narrow self-check, then the full suite
+once per project); the QA agent owns only behavioral verification on the running app and runs once,
+last, after the review loop closes. `code`'s Briefing/Verifying/Context discipline sections,
+`qa-eng`'s verification and context sections, `defect-report`'s size rules, and the commands' report
+contract express one premise — change them together.
+
+**Edits.** Builder agents (`js-eng`, `react-eng`, `vue-eng`, `golang-eng`, `docker-eng`, `db-admin`,
+`qa-eng`, `api-documenter`) each carry the edit rule in their own prompt, because a subagent loads
+only its own file: targeted changes through the Edit tool; `sed -i`/`awk` only for a uniform
+mechanical change across many files, followed by `git diff --stat`; never a Python script or heredoc
+to patch files. Read-only agents (`code-reviewer`, `code-diver`, `security-auditor`,
+`compliance-auditor`) stay read-only.
+
+**Breakdown.** The `breakdown` skill orchestrates in the main thread (it must — it spawns a
+read-only code-mapping subagent, and subagents cannot spawn subagents): requirements `R1…Rn` → `business-impact` skill →
 code map → tickets per seam → estimate → prioritize → bodies via `ticket-description` → tracker via
 `glab`/`gh`. `business-impact` owns the framing block and the per-requirement value tags
 (`Core` / `Supporting` / `Speculative`); `breakdown/references/prioritization.md` maps those tags to
