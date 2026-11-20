@@ -1,7 +1,7 @@
 ---
-description: Scope a new feature or change across one or more projects before building it — break the analysis into delegated tasks and compile the results into a note.
+description: Scope a new feature or change across projects before building it; compile delegated analysis into a note. Not for diagnosing a reported failure (use /investigate) or implementing (use the code skill).
 argument-hint: [ticket or feature/change to analyze]
-allowed-tools: Read, Grep, Glob, Bash, Task, AskUserQuestion, TaskCreate, TaskGet, TaskList, TaskUpdate, Skill
+allowed-tools: Read, Grep, Glob, Bash, Task, SendMessage, AskUserQuestion, TaskCreate, TaskGet, TaskList, TaskUpdate, Skill
 ---
 
 # Analyze
@@ -44,8 +44,8 @@ number, and may name the related projects.
 
    Use TaskCreate, TaskGet, TaskList, and TaskUpdate to track progress per project and task.
 
-   Launch **Agent(context-manager)** to maintain the note and to orchestrate the technical
-   subagents in the next step.
+   The main thread maintains the note and launches every subagent itself — subagents cannot spawn
+   subagents.
 
    Loop through tasks in dependency order:
 
@@ -56,8 +56,18 @@ number, and may name the related projects.
       Read/Grep/Glob/Bash instead of spawning an agent. Prefer the smallest unit of work that still
       covers the scope; one well-scoped agent beats a roster for a narrow task.
 
-   b. **Continue until all tasks are done.**
-      Each subagent gives its findings and its opinion; context-manager compiles them.
+   b. **Continue until all tasks are done.** Each subagent gives its findings and its opinion; the
+      main thread compiles them into the note.
+
+      The brief is self-contained: a spawned agent starts with no memory of this conversation — goal,
+      the files or paths to inspect, what "done" looks like, and what is out of scope. Point at paths
+      and symbols; never paste file bodies or diffs into a brief.
+
+      Report contract: findings with `file:line`, commands with exit codes, at most ~15 lines, no
+      restated brief, no prose preamble. Every claim in your synthesis traces to the subagent that
+      produced it; an unattributable claim does not go in the note. A thin or ambiguous report:
+      resume that same subagent (SendMessage) with the specific gap in ~5 lines — never re-run its
+      investigation yourself.
 
    c. **If a finding requires user input** (unclear context), use the **AskUserQuestion tool** to
       clarify, then continue.
@@ -67,7 +77,7 @@ number, and may name the related projects.
 Whenever you explain how code flows — how a feature works today, a request's path, a call chain,
 a struct's methods and what they call — render it with the **call-graph skill**, not prose. Invoke
 the skill via the **Skill tool** and emit its indented arrow tree (one node per call hop, each
-carrying `file:line`). This applies whether you trace inline or hand off to `code-diver`:
+carrying `file:line`). This applies whether you trace inline or hand off to the read-only explorer agent:
 
 - The note's **Current state** section anchors on these trees/tables.
 - The note's **Flow diagram** uses the call-graph tree for code call paths. (A mermaid
@@ -85,20 +95,20 @@ Do not rely on a fixed roster — pick from the agent types available to the `Ag
 session, so newly added agents are used without this command changing. If you need to enumerate
 them, run `ls .claude/agents/ ~/.claude/agents/`.
 
-**Default for code reading: spawn `code-diver`.** It returns call-graph trees and file:line tables
+**Default for code reading: the read-only explorer agent** (the one whose description is read-only exploration). It returns call-graph trees and file:line tables
 that anchor the **Current state** and **Impact map** sections — trace how a feature works today, map
 a struct's methods, find call sites, scope touched files. Routing rules:
 
-- **code-diver flag.** On a stack-semantic gap (concurrency, framework lifecycle, ORM behavior) it
+- **Explorer flag.** On a stack-semantic gap (concurrency, framework lifecycle, ORM behavior) it
   flags `→ needs <specialist>`. Spawn that specialist for just that finding.
 - **Smart-skip.** Request already semantic (thread-safety, reactivity, ORM/query, framework
-  internals) → skip code-diver, spawn the specialist directly.
-- **Pass the tree.** Escalating from a flag → hand code-diver's tree/table into the specialist
+  internals) → skip the explorer, spawn the specialist directly.
+- **Pass the tree.** Escalating from a flag → hand the explorer's tree/table into the specialist
   spawn as context; it does only the semantic step, no re-trace.
 
 Route the rest by capability: schema and migrations to the database agent, cross-cutting design to
 the architecture review agent, test strategy to the QA agent. Reach for a language engineering agent
-only when the analysis needs stack-specific depth code-diver cannot provide (concurrency-safety
+only when the analysis needs stack-specific depth an explorer cannot provide (concurrency-safety
 review, framework internals). If several fit, pick the most specific. If none fits, use
 `general-purpose`.
 
