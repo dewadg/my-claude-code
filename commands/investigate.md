@@ -1,7 +1,7 @@
 ---
-description: Investigate a reported issue across one or more projects — break it into delegated tasks, find the root cause, compile findings into a note.
+description: Investigate a reported issue across one or more projects — find the root cause and compile findings into an RCA note. Not for scoping a new feature (use /analyze) or implementing a fix (use the code skill).
 argument-hint: [issue, symptom, or ticket to investigate]
-allowed-tools: Read, Grep, Glob, Bash, Task, AskUserQuestion, TaskCreate, TaskGet, TaskList, TaskUpdate, Skill
+allowed-tools: Read, Grep, Glob, Bash, Task, SendMessage, AskUserQuestion, TaskCreate, TaskGet, TaskList, TaskUpdate, Skill
 ---
 
 # Investigate
@@ -43,8 +43,8 @@ related projects.
 
    Use TaskCreate, TaskGet, TaskList, and TaskUpdate to track progress per project and task.
 
-   Launch **Agent(context-manager)** to maintain the note and to orchestrate the technical
-   subagents in the next step.
+   The main thread maintains the note and launches every subagent itself — subagents cannot spawn
+   subagents.
 
    Loop through tasks in dependency order:
 
@@ -55,8 +55,18 @@ related projects.
       Read/Grep/Glob/Bash instead of spawning an agent. Prefer the smallest unit of work that still
       covers the scope; one well-scoped agent beats a roster for a narrow bug.
 
-   b. **Continue until all tasks are done.**
-      Each subagent gives its findings and its opinion; context-manager compiles them.
+   b. **Continue until all tasks are done.** Each subagent gives its findings and its opinion; the
+      main thread compiles them into the note.
+
+      The brief is self-contained: a spawned agent starts with no memory of this conversation — goal,
+      the files or paths to inspect, what "done" looks like, and what is out of scope. Point at paths
+      and symbols; never paste file bodies or diffs into a brief.
+
+      Report contract: findings with `file:line`, commands with exit codes, at most ~15 lines, no
+      restated brief, no prose preamble. Every claim in your synthesis traces to the subagent that
+      produced it; an unattributable claim does not go in the note. A thin or ambiguous report:
+      resume that same subagent (SendMessage) with the specific gap in ~5 lines — never re-run its
+      investigation yourself.
 
    c. **If a finding requires user input** (unclear context), use the **AskUserQuestion tool** to
       clarify, then continue.
@@ -71,7 +81,7 @@ Whenever you explain how code flows — the path from entry point to the defect,
 calls, who calls a symbol, a request's journey through layers — render it with the **call-graph
 skill**, not prose. Invoke the skill via the **Skill tool** and emit its indented arrow tree (one
 node per call hop, each carrying `file:line`). This applies whether you trace inline or hand off to
-`code-diver`:
+the read-only explorer agent:
 
 - The note's **Evidence** section anchors on these trees/tables — the code path from entry to defect
   is the tree.
@@ -90,20 +100,20 @@ Do not rely on a fixed roster — pick from the agent types available to the `Ag
 session, so newly added agents are used without this command changing. If you need to enumerate
 them, run `ls .claude/agents/ ~/.claude/agents/`.
 
-**Default for code reading: spawn `code-diver`.** It returns call-graph trees and file:line tables
+**Default for code reading: the read-only explorer agent** (the one whose description is read-only exploration). It returns call-graph trees and file:line tables
 that anchor the **Evidence**, **Root cause**, and **Blast radius** sections — trace entry → defect,
 map a suspect function's calls, list callers of the buggy symbol. Routing rules:
 
-- **code-diver flag.** On a stack-semantic gap (concurrency, framework lifecycle, ORM behavior) it
+- **Explorer flag.** On a stack-semantic gap (concurrency, framework lifecycle, ORM behavior) it
   flags `→ needs <specialist>`. Spawn that specialist for just that finding.
 - **Smart-skip.** Symptom already points at a semantic cause (race, reactivity, ORM/query,
-  framework lifecycle) → skip code-diver, spawn the specialist directly.
-- **Pass the tree.** Escalating from a flag → hand code-diver's tree/table into the specialist
+  framework lifecycle) → skip the explorer, spawn the specialist directly.
+- **Pass the tree.** Escalating from a flag → hand the explorer's tree/table into the specialist
   spawn as context; it does only the semantic diagnosis, no re-trace.
 
 Route the rest by capability: reproduction and E2E to the QA or UI testing agent, schema and query
 performance to the database agent. Reach for a language engineering agent only when the trace needs
-stack-specific depth code-diver cannot provide. If several fit, pick the most specific. If none
+stack-specific depth an explorer cannot provide. If several fit, pick the most specific. If none
 fits, use `general-purpose`.
 
 ## Output

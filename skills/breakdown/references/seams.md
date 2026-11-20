@@ -61,7 +61,7 @@ legal sign-off, third-party contract. They block tickets; they aren't tickets.
 - Every ticket traces to `R#`s; every `R#` lands in ≥ 1 ticket.
 - Mark `blocked by` explicitly; anything not blocked runs in parallel.
 
-## Code-diver briefs per seam
+## Code-mapping subagent briefs per seam
 
 Spawn one per project; ask for `file:line` tables, inventory only.
 

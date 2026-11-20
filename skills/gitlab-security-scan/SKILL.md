@@ -1,16 +1,11 @@
 ---
 name: gitlab-security-scan
-description: >-
-  Set up security scanning in a project's GitLab CI on the Free tier: per-package
-  Semgrep SAST jobs, an osv-scanner dependency vulnerability scan with an expiring
-  allowlist, one summarized JUnit scan report in the pipeline Tests tab, and
-  Renovate dependency-update MRs. Use whenever the user wants to "add SAST",
-  "add security scans to CI", "scan dependencies for vulnerabilities", "set up
-  osv-scanner", "add Renovate", "show scan results in the Tests tab", or replicate
-  an existing project's security pipeline into another GitLab repo. Also use to
-  triage the first findings those jobs report. Not for GitHub Actions, not for a
-  one-off local security review of a diff (use security-review), and not for
-  cutting releases (use glab-release).
+description: >
+  Add GitLab CI security scanning on the Free tier: per-package Semgrep SAST, an osv-scanner
+  dependency scan with an expiring allowlist, one JUnit summary in the Tests tab, and Renovate
+  MRs. Use for "add SAST", "scan dependencies", "add Renovate", or replicating a project's scan
+  pipeline; also triages the first findings. Not for GitHub Actions, local diff review
+  (security-review), or releases (glab-release).
 ---
 
 # GitLab Security Scan

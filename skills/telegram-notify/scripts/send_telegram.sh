@@ -120,7 +120,7 @@ if [ -n "$photo" ] && [ -f "$photo" ]; then
   # Local file: multipart upload. --form-string sends field values literally
   # (no @/< filename interpretation), so a caption starting with '*' or '@'
   # and any newlines survive intact; only the actual file uses -F @path.
-  args=(-s -X POST "$endpoint"
+  args=(
     --form-string "chat_id=${TELEGRAM_CHAT_ID}"
     -F "photo=@${photo}"
     --form-string "${text_field}=${text}"
@@ -132,7 +132,7 @@ else
   # Plain message, or a photo passed by URL / file_id (Telegram fetches it).
   # --data-urlencode (not plain -d) so newlines and reserved URL characters
   # like & and = inside the message survive transport intact.
-  args=(-s -X POST "$endpoint"
+  args=(
     --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}"
     --data-urlencode "${text_field}=${text}"
     -d "parse_mode=MarkdownV2")
@@ -144,7 +144,9 @@ else
   fi
 fi
 
-response="$(curl "${args[@]}")"
+# Feed the URL (which carries the bot token) to curl through --config on stdin,
+# so the credential never appears in curl's argv / `ps` output.
+response="$(printf 'url = "%s"\n' "$endpoint" | curl -s -X POST --config - "${args[@]}")"
 
 # Surface API failures so a MarkdownV2 escaping mistake is fixable, not silent.
 case "$response" in

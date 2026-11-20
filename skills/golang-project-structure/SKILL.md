@@ -1,18 +1,11 @@
 ---
 name: golang-project-structure
 description: >
-  Scaffold, extend, audit, or migrate a Go service onto one opinionated structure: cobra commands
-  in cmd/{bin} (serve, migrate, seed), Uber fx for DI and lifecycle, caarlos0/env + godotenv parsed
-  into internal/pkg/config before the graph, goose SQL migrations embedded from build/migrations,
-  OpenTelemetry logs/metrics/traces in internal/infra + internal/pkg/observability, log/slog with
-  canonical source/error keys, internal/{domain} packages with a fixed file-name grammar, a
-  multi-stage distroless Dockerfile and a standard Makefile (dev, build, migrate, seed, test).
-  ALWAYS use when the user asks to start, scaffold, or bootstrap a Go service/API/worker; add a
-  domain, module, endpoint, migration, seeder, or subcommand to a Go service; check, audit, lint,
-  or enforce Go project structure or logging conventions; or restructure/migrate an existing Go
-  project onto this layout — even if they only say "spin up a Go API", "add an orders module",
-  "where should this file go", or "is this repo following our structure". Not for writing unit
-  tests (use golang-unit-test) or for non-Go services.
+  Scaffold, extend, audit or migrate a Go service on one opinionated structure: cobra commands,
+  Uber fx DI, env config parsed before the graph, goose migrations, OTel + slog, domain packages,
+  distroless Dockerfile, standard Makefile. Use for "spin up a Go API", "add an orders module",
+  "where should this file go", "is this repo following our structure". Not for unit tests
+  (golang-unit-test).
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion
 effort: medium
 ---

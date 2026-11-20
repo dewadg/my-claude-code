@@ -1,18 +1,17 @@
 ---
 name: defect-report
-description: > 
-  Emit code-review findings and QA defect reports in the shared machine-digestible
-  severity-tagged format. ALWAYS use when ending a code review, a QA scenario-execution run,
-  or an exploratory QA pass with findings — and when the user asks for findings, defects, or
-  review comments in a standardized report. Not for writing the review itself (the reviewing
-  agent owns that), not for notes (use note-write), not for RCAs (use rca-write).
+description: >
+  Emit review findings and QA defects in the shared severity-tagged format: one line per finding
+  (path:line, tier, problem, fix), ordered by severity, then totals and a one-sentence verdict.
+  ALWAYS use when a code review or QA run ends with findings, or the user asks for findings in a
+  standard format. Not for the review itself, notes (note-write), or RCAs (rca-write).
 allowed-tools: Read
 effort: low
 ---
 
-Owns the finding-report format shared by `code-reviewer` and `qa-eng`. Every review or test run
-ends in this format so downstream agents and tooling can parse findings deterministically. No
-prose preamble, no praise filler, no "looks good".
+Owns the finding-report format shared by the review and QA agents (and any agent emitting findings).
+Every review or test run ends in this format so downstream agents and tooling can parse findings
+deterministically. No prose preamble, no praise filler, no "looks good".
 
 ## Severity tiers
 
@@ -58,3 +57,11 @@ Zero findings → `No issues.` (no totals line, no summary).
 - Need more context to judge → append `(see L<n> in <file>)`. Never guess.
 - Skip formatting nits unless they change meaning.
 - No praise preamble. Findings only.
+
+## Size
+
+- One line per finding, no exceptions — no multi-line findings, no nested detail blocks.
+- Past roughly 40 findings: totals and the severity breakdown in chat, the full finding list written
+  to a file path.
+- Screenshots as paths, never inline images.
+- Quoted command output capped at ~10 lines; the full log is a path.

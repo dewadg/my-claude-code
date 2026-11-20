@@ -1,6 +1,11 @@
 ---
 name: ticket-description
-description: Write the description body of a ticket/issue in a fixed section structure (Context/Background, Out of Scope, Pre-conditions, Design (tabular visual brief with screenshots per screen state, when there is UI), Requirements, Errors & Edge Cases, Acceptance Criteria with Given/When/Then), on any tracker — Jira, GitLab issues, GitHub issues, Linear, or no tracker at all. Use this whenever the user wants a ticket or issue description written, filled in, restructured, or fleshed out — including "fill USD-4300", "write the description for issue #42", "turn these notes into a story", "write the ACs", "this ticket is empty, flesh it out", "make this issue ready for dev", or when they paste rough requirements, a Slack thread, a Figma link, or a Claude Design canvas and expect a ticket out of it. Also use when reformatting an existing description that doesn't follow the structure. Produces the description text only; other fields (title, labels, points, assignee) are out of scope.
+description: >
+  Write a ticket body in the fixed section structure — Context, Out of Scope, Pre-conditions,
+  Design (screenshot table), Requirements, Errors & Edge Cases, Acceptance Criteria
+  (Given/When/Then) — on Jira, GitLab, GitHub, Linear or plain text. Use for "fill USD-4300",
+  "write the ACs", "turn this into a story". Writes only on explicit confirmation. Not for
+  splitting an epic into many tickets (breakdown).
 ---
 
 # Ticket description

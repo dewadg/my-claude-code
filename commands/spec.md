@@ -46,11 +46,11 @@ or prose.
 
    Fan out parallel investigators only when the change is genuinely large or spans multiple projects —
    touches many files, crosses package/repo boundaries, or has unknowns several focused reads resolve
-   faster in parallel. Spawn one **code-diver** per project/subsystem; each returns a call-graph tree
+   faster in parallel. Spawn one **read-only explorer agent** per project/subsystem; each returns a call-graph tree
    or file:line table of how the touched code works today, then synthesize. Routing rules for a
-   code-diver finding: on a `→ needs <specialist>` flag (stack-semantic gap), spawn that specialist for
-   just that finding and **pass code-diver's tree** into the spawn as context (semantic step only, no
-   re-trace); **smart-skip** code-diver entirely for areas already known to need semantic depth
+   explorer finding: on a `→ needs <specialist>` flag (stack-semantic gap), spawn that specialist for
+   just that finding and **pass the explorer's tree** into the spawn as context (semantic step only, no
+   re-trace); **smart-skip** the explorer entirely for areas already known to need semantic depth
    (thread-safety, reactivity, ORM/query, framework internals) — spawn the specialist direct. See
    "Choosing subagents" for the full routing. If you fan out, say so briefly so the user knows the cost.
 
@@ -84,7 +84,7 @@ skill** (invoke via the Skill tool): indented arrow tree, one node per call hop,
 `file:line`. Not prose, not an arrow-crammed one-liner.
 
 - The research step (how it works today) anchors on these trees, whether you trace inline or receive
-  them from `code-diver`.
+  them from the explorer.
 - The spec's **Flow** section uses the call-graph tree for code call paths; a mermaid diagram stays
   right for cross-service request/data flow, component interaction, or state transitions. Pick by
   what is shown — a code call path is always the tree.
@@ -99,14 +99,14 @@ so newly added agents are used without this command changing. If you need to enu
 ls .claude/agents/ ~/.claude/agents/ 2>/dev/null
 ```
 
-**Research investigators.** Default for code reading: spawn `code-diver` — it returns the call-graph
+**Research investigators.** Default for code reading: the read-only explorer agent — it returns the call-graph
 trees and file:line tables that anchor the "how it works today" research. Routing rules:
 
-- **code-diver flag.** On a stack-semantic gap (concurrency, framework lifecycle, ORM behavior) it
+- **Explorer flag.** On a stack-semantic gap (concurrency, framework lifecycle, ORM behavior) it
   flags `→ needs <specialist>`. Spawn that specialist for just that finding.
 - **Smart-skip.** Request already semantic (thread-safety, reactivity, ORM/query, framework internals)
-  → skip code-diver, spawn the specialist directly.
-- **Pass the tree.** Escalating from a flag → hand code-diver's tree/table into the specialist spawn
+  → skip the explorer, spawn the specialist directly.
+- **Pass the tree.** Escalating from a flag → hand the explorer's tree/table into the specialist spawn
   as context; it does only the semantic step, no re-trace.
 
 **Todo-wave owners.** When filling the spec's dependency-wave todo, name the single agent that owns

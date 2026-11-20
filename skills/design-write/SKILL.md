@@ -1,65 +1,35 @@
 ---
 name: design-write
 description: >
-  Compile feature-analysis findings into a design-doc note — owns the design-doc note FORMAT: the
-  section template, conditional sections, cross-cutting checks, and writing principles. Built on the
-  note-write skill's frontmatter + filename + location conventions — a design-doc note IS a note.
-  Use whenever the user wants a design doc, analysis note, or impact assessment written, formatted,
-  or compiled — e.g. "write the design doc", "compile the analysis into a note", "format this as an
-  impact assessment", or when the /analyze command hands off findings. This skill formats and writes
-  the note only — it does NOT fan out investigator subagents or drive the analysis; for a change
-  needing multi-project research, the /analyze command orchestrates the investigators first, then
-  calls this skill to compile the result. Do NOT use for: a root-cause analysis (use rca-write),
-  writing a spec (use spec-write), or generic notes (use note-write).
+  Compile analysis findings into a design-doc note: TLDR, scope, current state, impact map,
+  proposed change, alternatives, risks, rollout, test strategy, delivery plan. Use for "write the
+  design doc", "format this as an impact assessment", or when /analyze hands off. Owns the
+  design-doc body template only. Not for RCA (rca-write), a spec (spec-write), or generic notes
+  (note-write).
 allowed-tools: Read, Grep, Glob, Write, Edit, AskUserQuestion
 ---
 # Design-doc note
 
-This skill owns the design-doc note **format** and the file mechanics: the section template, the
-conditional sections, the cross-cutting checks, and the writing principles. It does not own the
-analysis process — spawning investigator subagents, tracing code flow, or committing to a
-recommendation is the `/analyze` command's job. When fired directly (not via `/analyze`), assemble
-the caller's findings into the template, ask if intent is unclear, and write the note; do light
-grounding reads only, never fan out agents.
+Owns the design-doc note **body format**: section template, conditional sections, cross-cutting
+checks, writing principles. Frontmatter, filename and location are **note-write's** — don't
+redefine them here, note-search greps those fields uniformly across every note. The analysis
+(tracing code, committing to a recommendation) belongs to `/analyze`; fired directly, assemble the
+caller's findings, ask if intent is unclear, and write the note — light grounding reads only, never
+fan out agents.
 
-A design-doc note IS a note: the **frontmatter, the filename, and the location follow the note-write
-skill**. This skill owns only the design-doc-specific **body** section template on top of those
-conventions. Do not redefine frontmatter or filename format here — note-search greps those fields
-uniformly across every note, design doc or not, so the shared note-schema contract stays intact.
-
-One job: **create** the design-doc note (below).
-
-**Input**: the feature/change description plus any findings the caller already has (ticket number,
-current-state traces, impact map, proposed approach). May name related projects.
+**Input**: the change plus any findings in hand (ticket, current-state traces, impact map,
+proposed approach).
 
 ## Create
 
-1. **If no clear input, ask**
-
-   Use **AskUserQuestion tool** (open-ended, no preset options):
-   > "What change do you want analyzed? Describe the feature or change, the projects it touches, and
-   > any findings so far."
-
-   Do NOT proceed without understanding intent. From the answer, derive the descriptive slug (and
-   ticket number if given) for the filename.
-
-2. **Search prior notes**
-
-   Use the **note-search skill** to look for existing notes — a past analysis may already cover this
-   area, and related notes belong in the new note's frontmatter `related` field.
-
-3. **Write the design-doc note**
-
-   Write the note file per the note-write skill's location and filename conventions
-   (`.notes/{YYYY}-{MM}-{DD}[-{TICKET}]-descriptive-slug.md`, lowercase), with the note frontmatter
-   (per note-write) followed by the full section skeleton below. Fill every applicable core section;
-   omit conditional ones that do not apply. The skeleton itself — every core section header present
-   — is how the format is enforced at creation; the analysis then fills each section in place.
-
-4. **Hand off**
-
-   Summarize in chat: note path, recommended approach, and any open questions needing the user. End
-   with: "Review the design doc; the remaining sections fill in as the analysis progresses."
+1. No clear input → AskUserQuestion, open-ended: "What change do you want analyzed? The feature or
+   change, the projects it touches, findings so far." Derive the slug (and ticket) from the answer.
+2. Prior notes → **note-search**; related ones go in `related`.
+3. Write per note-write: frontmatter, then every core section below. Conditional sections only
+   when they apply. The full skeleton at creation is what enforces the format; the analysis fills
+   it in place.
+4. Hand off in chat: path, the recommended approach, open questions, and "Review the design doc;
+   the remaining sections fill in as the analysis progresses."
 
 ## The design-doc note template
 
@@ -104,20 +74,15 @@ Call these out explicitly whenever the change touches them:
   consumers must follow?
 - **Deploy order**: which service must ship before which client, and what deployment config follows
 
-## Code flow in the note
+## Code flow
 
-The **Current state** and **Flow diagram** sections render code paths as call-graph trees (per the
-**call-graph skill** — indented arrow tree, one node per call hop, each carrying `file:line`). The
-`/analyze` command owns WHEN to invoke call-graph during the trace; this skill only requires that,
-once traced, a code path lands in those sections as a tree, not prose.
+**Current state** and **Flow diagram** render each traced path as a call-graph tree (per the
+**call-graph skill**: indented arrows, one hop per line, `file:line` per node), never prose.
+`/analyze` decides when to trace; this skill fixes only how the trace lands in the note.
 
 ## Guardrails
 
-- Write exactly one note file.
-- Do not spawn investigator subagents — that is `/analyze`'s role. If real analysis is needed beyond
-  light grounding, defer to `/analyze`.
-- Do not present a recommendation as decided until the alternatives and their tradeoffs are on the
-  page. Say plainly in Open Questions when a choice is still open — report faithfully rather than
-  papering over.
-- Re-read the note from disk before editing it; the analysis may have changed it since you last saw
-  it.
+- One note file. No subagents — real analysis defers to `/analyze`.
+- No recommendation presented as decided until the alternatives and their tradeoffs are on the
+  page; an open choice goes in Open Questions, stated plainly.
+- Re-read the note from disk before editing; the analysis may have changed it.

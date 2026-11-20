@@ -1,14 +1,10 @@
 ---
 name: hurl-write
 description: >
-  Author Hurl files (.hurl) — plain-text HTTP test scenarios: chained requests with captures, status
-  and body asserts, variables and secrets. ALWAYS use when the user wants an HTTP endpoint test
-  scenario written down as a re-runnable file — e.g. "write a hurl test for the /users API", "turn
-  these test scenarios into hurl", "add a hurl file covering the login flow", "create an API
-  regression suite", "script the create → read → delete flow". Also use when converting a
-  Given/When/Then table, OpenAPI spec, curl commands, or route code into .hurl files. This skill
-  writes the file only — to execute a file or fire a one-off request, use hurl-run. Not for Go unit
-  tests (use golang-unit-test) or browser UI flows.
+  Write `.hurl` HTTP test scenario files: chained entries, captures, status and body asserts,
+  variables and secrets. Use for "write a hurl test for the /users API", "turn these scenarios
+  into hurl", or converting a Given/When/Then table, OpenAPI spec or curl commands. Execution
+  belongs to hurl-run. Not for Go unit tests or browser flows.
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash(hurl *), Bash(hurlfmt *)
 ---
 

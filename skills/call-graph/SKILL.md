@@ -1,17 +1,10 @@
 ---
 name: call-graph
 description: >
-  Render how code flows through a system as a simple indented call graph — one node per call,
-  grouped by entry point, each node carrying its file:line. Produces a scannable ASCII arrow tree,
-  never a dense prose paragraph or a crammed one-liner. Trigger in two cases only. (1) Explicit
-  invoke: the user names this skill or runs /call-graph — e.g. "use call-graph", "/call-graph
-  CheckUniqueProjectName", "call-graph the login flow". (2) Asked to analyze or explain how
-  something works — e.g. "explain how the login endpoint works", "how does the export job run",
-  "walk me through what happens when a project is created", "how does X reach the DB", "analyze
-  how Y flows end to end", "what's the request flow for Z". Not for executing code, writing tests,
-  writing the code itself, or doing a feature-impact / root-cause analysis — when "analyze" means
-  scope-the-change or find-the-bug, use analyze / investigate instead (they end in a note, this
-  ends in a tree).
+  Render a code path as an indented arrow tree: one call per line, each with `file:line`, trace
+  stops tagged `[DB]`/`[RPC]`/`[external]`. Use for "explain how X works", "walk me through the
+  login flow", "how does X reach the DB", or an explicit "call-graph X" / "/call-graph X". Not for
+  writing code or tests, and not for impact or root-cause analysis (/analyze, /investigate).
 allowed-tools: Read, Grep, Glob, Bash
 ---
 
@@ -20,16 +13,6 @@ allowed-tools: Read, Grep, Glob, Bash
 Produce a simple indented call graph showing how a symbol flows through the codebase. The goal: a
 reader skims the tree and grasps the whole path in seconds — counting hops by eye, jumping to any
 node via its `file:line`.
-
-## The pain this fixes
-
-The format this skill replaces is the one-liner that crams everything into a single stream:
-
-> `endpoint (endpoints/) → transport (handler.go:36-83) → route (server.go:184) → usecase → service → repo`
-
-To read that, the eye has to tokenize arrows, parentheses, paths, and line ranges all at once, with
-no visual hierarchy. Indentation carries the structure instead, and each node gets its own line. The
-arrows no longer have to do the work of grammar.
 
 ## When invoked
 
@@ -135,19 +118,11 @@ ProjectService                  services/project.go:18
 Pick by what the user pointed at: a callable → entry-point trace; a type → type map. If unsure, the
 entry-point trace is the safer default.
 
-## What "easy to digest" means here
-
-A cold reader should be able to: see the whole path at a glance, count the hops by eye, and jump to
-any node via its `file:line`. Three signs the draft is wrong — rewrite, don't ship:
-
-- it reads like a paragraph (→ break it into the tree);
-- a node has no real location (→ go read the code, or mark it unconfirmed);
-- two arrows sit on the same line, or indentation does not match call depth (→ fix the structure,
-  the indentation *is* the information).
-
 ## Before you print
 
-Reread as a cold reader: can the path be followed from indentation alone? Is every location real?
-Did the trace stop at a real boundary or just where patience ran out? Then output the tree in a
-fenced block and stop — do not add a prose retelling of what the tree already shows. If the user
-asked for prose commentary, give it after the tree, separately, so the tree stays copy-pasteable.
+Three signs the draft is wrong — rewrite, don't ship: it reads like a paragraph; a node has no real
+location (go read the code, or mark it unconfirmed); two arrows share a line or indentation does not
+match call depth. Then check as a cold reader: can the path be followed from indentation alone, is
+every location real, did the trace stop at a real boundary or where patience ran out? Output the
+tree in a fenced block and stop — no prose retelling. If the user asked for commentary, give it
+after the tree, separately, so the tree stays copy-pasteable.

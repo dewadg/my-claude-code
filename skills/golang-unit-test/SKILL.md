@@ -1,11 +1,10 @@
 ---
 name: golang-unit-test
 description: >
-  Write Go unit tests in one canonical table-driven format, with optional before/after hooks per
-  case. ALWAYS use when the user asks to write, add, or rewrite a Go unit test — e.g. "write unit
-  tests for this handler", "cover this method", "add a test case for the error path". Also use when
-  an existing Go test is not table-driven and needs to be brought into the standard shape. Not for
-  integration or HTTP endpoint testing (use hurl-write / hurl-run).
+  Write Go unit tests in the canonical table-driven shape: a `tests` slice, `args`/`fields`
+  structs, `t.Run(tt.name, …)`, `assert.ErrorAssertionFunc`, optional `before`/`after` hooks. Use
+  for "write unit tests for this handler", "cover this method", "add a test case for the error
+  path". Not for integration or HTTP endpoint tests (hurl-write / hurl-run).
 effort: medium
 ---
 
@@ -67,6 +66,8 @@ If the function returns no error, drop the `wantErr` field and collapse the body
 `assert.Equalf` on `got`.
 
 ### Struct method
+
+Same loop, plus `fields` and the hooks:
 
 ```go
 func Test{STRUCT_NAME}_{METHOD_NAME}(t *testing.T) {
