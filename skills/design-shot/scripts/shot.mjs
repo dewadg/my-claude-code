@@ -42,6 +42,11 @@ const { values: a } = parseArgs({
 });
 
 const die = (code, msg) => { console.error(msg); process.exit(code); };
+// Thrown inside the render try so the socket and Chrome are released by `finally`
+// before the process exits with the same code and message.
+class RenderError extends Error {
+  constructor(code, message) { super(message); this.exitCode = code; }
+}
 
 if (!a.dir) die(2, 'missing --dir');
 const DIR = path.resolve(a.dir);
@@ -74,16 +79,22 @@ function scanBoard(file) {
   return { html, imports, blobs, props: readProps(html) };
 }
 
+let blobIndex = null;
 function findBlob(id) {
-  const stack = [DIR];
-  while (stack.length) {
-    const d = stack.pop();
-    for (const e of fs.readdirSync(d, { withFileTypes: true })) {
-      const p = path.join(d, e.name);
-      if (e.isDirectory()) stack.push(p);
-      else if (e.name.startsWith(id)) return p;
+  if (!blobIndex) {
+    // Index every file once (DFS order) instead of rescanning the tree per lookup.
+    blobIndex = new Map();
+    const stack = [DIR];
+    while (stack.length) {
+      const d = stack.pop();
+      for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+        const p = path.join(d, e.name);
+        if (e.isDirectory()) stack.push(p);
+        else if (!blobIndex.has(e.name)) blobIndex.set(e.name, p);
+      }
     }
   }
+  for (const [name, p] of blobIndex) if (name.startsWith(id)) return p;
   return null;
 }
 
@@ -201,7 +212,13 @@ const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'applic
 const notFound = new Set();
 
 const server = http.createServer((req, res) => {
-  const url = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+  let url;
+  try {
+    url = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+  } catch {
+    res.writeHead(400);
+    return res.end();
+  }
   let file = null;
   if (url === '/support.js') file = RUNTIME;
   else if (url.startsWith('/_blob/')) file = findBlob(url.slice(7).split(/[/.]/)[0]);
@@ -241,6 +258,7 @@ const pad = Number(a.padding ?? 0);
 await new Promise((r) => server.listen(0, '127.0.0.1', r));
 const port = server.address().port;
 const browser = await puppeteer.launch({ executablePath: chromePath(), headless: true, args: ['--hide-scrollbars'] });
+let exitCode = 0;
 try {
   const page = await browser.newPage();
   await page.setViewport({ width, height, deviceScaleFactor: Number(a.scale || 2) });
@@ -252,13 +270,13 @@ try {
   if (a.selector || a.text) {
     const sel = a.selector || `::-p-text(${a.text})`;
     let el = await page.$(sel);
-    if (!el) die(4, `no element matches ${a.selector ? `selector "${a.selector}"` : `text "${a.text}"`}`);
+    if (!el) throw new RenderError(4, `no element matches ${a.selector ? `selector "${a.selector}"` : `text "${a.text}"`}`);
     const up = Number(a.up || 0);
     if (up > 0) {
       el = await el.evaluateHandle((n, k) => { let x = n; for (let i = 0; i < k && x.parentElement; i++) x = x.parentElement; return x; }, up);
     }
     const box = await el.boundingBox();
-    if (!box) die(4, 'matched element is not visible');
+    if (!box) throw new RenderError(4, 'matched element is not visible');
     const doc = await page.evaluate(() => ({ w: document.documentElement.scrollWidth, h: document.documentElement.scrollHeight }));
     const x = Math.max(0, box.x - pad); const y = Math.max(0, box.y - pad);
     clip = { x, y, width: Math.min(doc.w - x, box.width + pad * 2), height: Math.min(doc.h - y, box.height + pad * 2) };
@@ -270,8 +288,18 @@ try {
   if (real404.length) console.error(`warn: not found while rendering: ${real404.join(', ')}`);
   console.log(JSON.stringify({ out: path.resolve(a.out), board: BOARD, viewport: { width, height }, state: overrides, clip }));
 } catch (e) {
-  die(4, `render failed: ${e.message}`);
+  if (e instanceof RenderError) {
+    console.error(e.message);
+    exitCode = e.exitCode;
+  } else {
+    console.error(`render failed: ${e.message}`);
+    exitCode = 4;
+  }
 } finally {
-  await browser.close();
-  server.close();
+  try {
+    await browser.close();
+  } finally {
+    await new Promise((r) => server.close(r));
+  }
 }
+if (exitCode !== 0) process.exit(exitCode);

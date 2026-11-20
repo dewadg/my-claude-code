@@ -8,7 +8,7 @@ unauthenticated. Pick the tracker from the URL/identifier, or `git remote -v`.
 ```bash
 glab issue view 42 --comments
 glab issue list --label "feature" --state opened --per-page 100
-glab issue list --milestone "Q4" --output json        # backlog dump for --groom
+glab issue list --milestone "Q4" --output json        # backlog dump for grooming mode
 glab label list
 
 gh issue view 42 --comments
@@ -17,7 +17,7 @@ gh search issues --repo org/repo "is:open label:feature"
 gh label list
 ```
 
-## Write (only after `--write` and an explicit yes)
+## Write (only in write mode, after an explicit yes)
 
 Bodies go in files — never inline multi-line markdown in a shell argument.
 

@@ -1,19 +1,12 @@
 ---
 name: breakdown
 description: >
-  Break a big block of requirements — a PRD, a pasted requirements doc, a vague or oversized
-  ticket, an epic, a Figma flow — into tickets human engineers can pick up (backend, frontend,
-  mobile, and the other seams: migrations, jobs, infra, analytics, admin), each sized in human
-  working time (t-shirt), framed by business impact (via the business-impact skill), prioritized,
-  and sequenced. Also grooms an
-  existing backlog. Orchestrates: maps the codebase with code explorers, cuts tickets per seam,
-  writes each body with the ticket-description skill, and creates them via glab/gh only after
-  confirmation. Use whenever the user wants requirements or a ticket turned into multiple tickets —
-  e.g. "break this down into tickets", "split #42", "this ticket is too big", "slice this PRD into
-  BE/FE/mobile tickets", "estimate this feature", "which of these should we do first", "groom the
-  backlog for milestone Q4", or /breakdown. Not for a single ticket's description with no breakdown
-  (use ticket-description), technical impact analysis with no tickets out (use /analyze), or
-  building the work (use code).
+  Break a requirements block (PRD, epic, oversized ticket, Figma flow) into tickets per seam —
+  backend, frontend, mobile, migrations, jobs, infra — framed by business impact, estimated,
+  prioritized, sequenced; or groom an existing backlog. Use for "break this down into tickets",
+  "split #42", "this ticket is too big", "groom milestone Q4", or /breakdown. Writes to the tracker
+  only after confirmation. Not for a single ticket's description (ticket-description) or technical
+  scoping with no tickets out (/analyze).
 argument-hint: "[requirements file/URL, ticket id/URL, or pasted text] [--groom] [--write]"
 allowed-tools: Read, Grep, Glob, Bash, Write, WebFetch, Artifact, Task, SendMessage, AskUserQuestion, TaskCreate, TaskGet, TaskList, TaskUpdate, Skill
 ---
@@ -28,8 +21,13 @@ weaker on business framing. Carry the "why" and the ordering, and explain it in 
 
 **Input**: `$ARGUMENTS` — a requirements file path or URL, a ticket/epic id or URL (GitLab `#42` /
 `group/project#42`, GitHub `#42`), or pasted text. May name projects.
-`--groom` — the target is a backlog (label, milestone, epic) to groom; see `references/grooming.md`.
-`--write` — create the tickets in the tracker after the user approves them.
+
+Two modes, each switched on by its flag or by the user asking for it in plain language:
+
+- **Grooming mode** (`--groom`) — the user asks to groom an existing backlog (a label, milestone,
+  epic, or list of ticket ids) rather than split one block; see `references/grooming.md`.
+- **Write mode** (`--write`) — the user asks you to write the tickets into the tracker, which happens
+  only after they approve them.
 
 ## Reference files — read when you reach the step
 
@@ -38,7 +36,7 @@ weaker on business framing. Carry the "why" and the ordering, and explain it in 
 | `references/seams.md` | steps 4–5 |
 | `references/estimation.md` | step 6 |
 | `references/prioritization.md` | step 7 |
-| `references/grooming.md` | `--groom` only |
+| `references/grooming.md` | grooming mode only |
 | `references/tracker-cli.md` | steps 1 and 9, whenever touching the tracker |
 
 ## Workflow
@@ -85,12 +83,13 @@ Identify the projects behind each seam (backend, web, mobile, infra) and read ea
 `CLAUDE.md` / `AGENTS.md`. Greenfield → skip mapping, mark sizes as greenfield.
 
 **Scale fan-out to scope — tokens are the budget.** One small project → inventory inline with
-Read/Grep/Glob. Several projects or a large surface → spawn **`code-diver`** once per project, in
-parallel, with the seam brief from `references/seams.md` (endpoint inventory for BE, screen and
-shared-component inventory for FE/mobile, etc.). Ask for `file:line` tables, not prose. Stop at
-inventory — what exists, what's reusable, what's touched — not implementation design.
+Read/Grep/Glob. Several projects or a large surface → spawn one **read-only code-mapping
+subagent** per project, in parallel, with the seam brief from `references/seams.md` (endpoint
+inventory for BE, screen and shared-component inventory for FE/mobile, etc.). Ask for `file:line`
+tables, not prose. Stop at inventory — what exists, what's reusable, what's touched — not
+implementation design.
 
-When code-diver flags `→ needs <specialist>`, spawn that specialist only for that finding, passing
+When that subagent flags `→ needs <specialist>`, spawn that specialist only for that finding, passing
 the tree.
 
 ### 5. Cut tickets per seam
@@ -137,18 +136,18 @@ expensive part, don't write 20 then rework them.
   part of a screen, a crop of that part. Each shot becomes a row of the ticket's **Design** section
   (ticket-description owns the table; design-shot supplies the rows, image embedded once uploaded).
 - Save bodies to the scratchpad (one file per ticket) so they can be passed by path.
-- `--write` → confirm first:
+- Write mode → confirm first:
   > "Create N tickets in <project>, linked to #<parent>? (parent description unchanged)"
   On explicit yes, create via `references/tracker-cli.md`, link to the parent, report every URL.
   Design screenshots upload with it (GitLab, via design-shot's upload step) — mention the image
   count in the confirmation.
   Updating the parent (child checklist) needs its own yes.
-- No `--write` → print bodies in fenced blocks and offer creation in one line.
+- Not write mode → print bodies in fenced blocks and offer creation in one line.
 
 ## Guardrails
 
-- Never write to the tracker without `--write` **and** an explicit yes; never overwrite an existing
-  description without separate confirmation.
+- Never write to the tracker unless in write mode **and** the user gave an explicit yes; never
+  overwrite an existing description without separate confirmation.
 - Never invent requirements, metrics, deadlines, or sizes without a driver — trace to a source or
   mark unknown.
 - Estimates are human effort; never shrink a size because an AI could write the code faster.

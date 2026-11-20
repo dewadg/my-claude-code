@@ -1,16 +1,11 @@
 ---
 name: business-impact
 description: >
-  Frame the business impact of a feature, requirement block, ticket, or backlog item — who has the
-  problem, what kind of value it creates (revenue, retention, cost, risk, enabler), which metric
-  moves, the cost of delay, the smallest valuable slice, and confidence — in plain language that
-  teaches the reasoning, with no invented numbers. Owns the framing block format and the per-
-  requirement value tags (Core / Supporting / Speculative) that prioritization consumes. Use
-  whenever the user asks "is this worth building", "what's the business value of X", "why should we
-  prioritize this", "help me pitch this to stakeholders", "what's the impact if we don't do this",
-  "what's the MVP here", or when the breakdown skill reaches its framing step. Not for ranking or
-  sequencing tickets (breakdown owns prioritization), estimating effort (breakdown), or marketing
-  positioning and copy (use product-marketing / copywriting).
+  Frame the business impact of a feature or requirement block: who hurts, value type, metric, cost
+  of delay, smallest valuable slice, confidence, plus a Core/Supporting/Speculative tag per
+  requirement. Use for "is this worth building", "what's the business value", "what's the MVP
+  here", or the breakdown skill's framing step. Not for ranking tickets (breakdown) or marketing
+  copy.
 allowed-tools: Read, Grep, Glob, Bash, WebFetch, WebSearch, AskUserQuestion, Skill
 ---
 

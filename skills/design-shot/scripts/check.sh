@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # design-shot dependency check.
 # Exit 0: ready. Exit 3: something missing — prints what and the exact fix on stdout.
-set -u
+set -uo pipefail
 
 DS_HOME="${DESIGN_SHOT_HOME:-$HOME/.cache/design-shot}"
 missing=0
@@ -10,7 +10,9 @@ if ! command -v node >/dev/null 2>&1; then
   echo "MISSING node — install Node.js >= 18 (e.g. via nvm), then rerun."
   missing=1
 else
-  major="$(node -p 'process.versions.node.split(".")[0]')"
+  major="$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || true)"
+  major="${major:-0}"
+  case "$major" in ''|*[!0-9]*) major=0 ;; esac
   if [ "$major" -lt 18 ]; then
     echo "MISSING node >= 18 (found $(node -v)) — upgrade Node.js."
     missing=1
@@ -39,10 +41,25 @@ else
 fi
 
 if [ -d "$DS_HOME/node_modules/puppeteer-core" ]; then
-  echo "OK puppeteer-core $(node -p "require('$DS_HOME/node_modules/puppeteer-core/package.json').version" 2>/dev/null)"
+  echo "OK puppeteer-core $(DS_PKG="$DS_HOME/node_modules/puppeteer-core/package.json" node -p 'require(process.env.DS_PKG).version' 2>/dev/null)"
 else
   echo "MISSING puppeteer-core in $DS_HOME"
   echo "INSTALL: npm install --prefix \"$DS_HOME\" puppeteer-core"
+  missing=1
+fi
+
+# The upload helper (scripts/gitlab-upload.sh) needs both; check them here so a
+# missing tool fails before screenshots are taken.
+if command -v curl >/dev/null 2>&1; then
+  echo "OK curl $(command -v curl)"
+else
+  echo "MISSING curl — install it (Debian/Ubuntu: apt-get install -y curl; macOS: brew install curl)."
+  missing=1
+fi
+if command -v jq >/dev/null 2>&1; then
+  echo "OK jq $(command -v jq)"
+else
+  echo "MISSING jq — install it (Debian/Ubuntu: apt-get install -y jq; macOS: brew install jq)."
   missing=1
 fi
 

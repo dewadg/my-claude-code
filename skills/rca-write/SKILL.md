@@ -1,65 +1,33 @@
 ---
 name: rca-write
 description: >
-  Compile investigation findings into a root-cause analysis (RCA) note — owns the RCA note FORMAT:
-  the section template, conditional sections, cross-cutting checks, and writing principles. Built on
-  the note-write skill's frontmatter + filename + location conventions — an RCA note IS a note. Use
-  whenever the user wants an RCA written, formatted, or compiled — e.g. "write the RCA", "compile
-  the investigation into a note", "format this as a root-cause doc", or when the /investigate command
-  hands off findings. This skill formats and writes the note only — it does NOT fan out investigator
-  subagents or drive the investigation; for an issue needing multi-project research, the /investigate
-  command orchestrates the investigators first, then calls this skill to compile the result. Do NOT
-  use for: scoping a new feature (use /analyze), writing a spec (use spec-write), or generic notes
-  (use note-write).
+  Compile investigation findings into an RCA note: TLDR, symptom, reproduction, evidence,
+  call-graph flow, ruled-out theories, root cause, blast radius, fix options, verification,
+  rollout. Use for "write the RCA", "compile the investigation into a note", or when /investigate
+  hands off. Owns the RCA body template only. Not for scoping a feature or design docs (/analyze,
+  design-write), a spec (spec-write), or generic notes (note-write).
 allowed-tools: Read, Grep, Glob, Write, Edit, AskUserQuestion
 ---
 # RCA note
 
-This skill owns the RCA note **format** and the file mechanics: the section template, the
-conditional sections, the cross-cutting checks, and the writing principles. It does not own the
-investigation process — spawning investigator subagents, tracing code flow, or confirming a root
-cause is the `/investigate` command's job. When fired directly (not via `/investigate`), assemble
-the caller's findings into the template, ask if intent is unclear, and write the note; do light
-grounding reads only, never fan out agents.
+Owns the RCA note **body format**: section template, conditional sections, cross-cutting checks,
+writing principles. Frontmatter, filename and location are **note-write's** — don't redefine them
+here, note-search greps those fields uniformly across every note. The investigation (tracing code,
+confirming a cause) belongs to `/investigate`; fired directly, assemble the caller's findings, ask
+if intent is unclear, and write the note — light grounding reads only, never fan out agents.
 
-An RCA note IS a note: the **frontmatter, the filename, and the location follow the note-write
-skill**. This skill owns only the RCA-specific **body** section template on top of those
-conventions. Do not redefine frontmatter or filename format here — note-search greps those fields
-uniformly across every note, RCA or not, so the shared note-schema contract stays intact.
-
-One job: **create** the RCA note (below).
-
-**Input**: the issue/symptom description plus any findings the caller already has (ticket number,
-suspected cause, logs, traced code paths). May name related projects.
+**Input**: the symptom plus any findings in hand (ticket, suspected cause, logs, traced paths).
 
 ## Create
 
-1. **If no clear input, ask**
-
-   Use **AskUserQuestion tool** (open-ended, no preset options):
-   > "What issue should the RCA cover? Describe the symptom, the affected environment, and any
-   > findings so far."
-
-   Do NOT proceed without understanding the symptom. From the answer, derive the descriptive slug
-   (and ticket number if given) for the filename.
-
-2. **Search prior notes**
-
-   Use the **note-search skill** to look for existing notes — a past investigation may already
-   cover this area, and related notes belong in the new note's frontmatter `related` field.
-
-3. **Write the RCA note**
-
-   Write the note file per the note-write skill's location and filename conventions
-   (`.notes/{YYYY}-{MM}-{DD}[-{TICKET}]-descriptive-slug.md`, lowercase), with the note frontmatter
-   (per note-write) followed by the full section skeleton below. Fill every applicable core section;
-   omit conditional ones that do not apply. The skeleton itself — every core section header present
-   — is how the format is enforced at creation; the investigation then fills each section in place.
-
-4. **Hand off**
-
-   Summarize in chat: note path, and the confirmed root cause if one is already in hand. End with:
-   "Review the RCA; the remaining sections fill in as the investigation progresses."
+1. No clear input → AskUserQuestion, open-ended: "What issue should the RCA cover? Symptom, affected
+   environment, findings so far." Derive the slug (and ticket number) from the answer.
+2. Prior notes → **note-search**; related ones go in `related`.
+3. Write per note-write: frontmatter, then every core section below. Conditional sections only
+   when they apply. The full skeleton at creation is what enforces the format; the investigation
+   fills it in place.
+4. Hand off in chat: path, the root cause if already confirmed, and "Review the RCA; the remaining
+   sections fill in as the investigation progresses."
 
 ## The RCA note template
 
@@ -109,20 +77,15 @@ Call these out explicitly whenever the issue touches them:
   consumers must follow?
 - **Deploy order**: which service must ship before which client
 
-## Code flow in the note
+## Code flow
 
-The **Evidence** and **Flow diagram** sections render code paths as call-graph trees (per the
-**call-graph skill** — indented arrow tree, one node per call hop, each carrying `file:line`). The
-`/investigate` command owns WHEN to invoke call-graph during the trace; this skill only requires
-that, once traced, a code path lands in those sections as a tree, not prose.
+**Evidence** and **Flow diagram** render each traced path as a call-graph tree (per the
+**call-graph skill**: indented arrows, one hop per line, `file:line` per node), never prose.
+`/investigate` decides when to trace; this skill fixes only how the trace lands in the note.
 
 ## Guardrails
 
-- Write exactly one note file.
-- Do not spawn investigator subagents — that is `/investigate`'s role. If real investigation is
-  needed beyond light grounding, defer to `/investigate`.
-- Do not present a theory as the root cause until the mechanism is confirmed against the code or the
-  data. Say plainly in Open Questions when a cause is still unconfirmed — report faithfully rather
-  than papering over.
-- Re-read the note from disk before editing it; the investigation may have changed it since you last
-  saw it.
+- One note file. No subagents — real investigation defers to `/investigate`.
+- No theory as root cause until the mechanism is confirmed against code or data; an unconfirmed
+  cause goes in Open Questions, stated plainly.
+- Re-read the note from disk before editing; the investigation may have changed it.

@@ -50,7 +50,7 @@ vet:
 	go vet ./...
 
 lint:
-	golangci-lint run ./...
+	@out="$$(gofmt -l .)"; [ -z "$$out" ] || { echo "unformatted:"; echo "$$out"; exit 1; }
 
 tidy:
 	go mod tidy

@@ -1,6 +1,10 @@
 ---
 name: note-search
-description: Retrieve relevant notes. ALWAYS use when the user needs to retrieve persisted knowledge from notes.
+description: >
+  Search `.notes/` (including `archive/`) by tag, topic, ticket, project or date, and read only a
+  candidate's frontmatter before opening the body. Use for "what did we decide about…", "find the
+  RCA/design doc on…", "did we hit this before?", or when another skill needs prior context. Not
+  for writing notes (note-write).
 allowed-tools: Read, Grep, Bash
 ---
 
@@ -14,47 +18,23 @@ List of relevant note files based on the keywords.
 
 ## Note Format
 
-Each notes have following frontmatter that can be used to filter:
-```yaml
----
-tags: [go, http] # topics, ticket numbers
-projects: [user-management-svc, sso-frontend] # related projects
-created: 2026-04-30 # when written
-updated: 2026-05-02 # last edited
-related: # linked notes/files
-  - go-context.md
-  - blabla.json
-description: What this is about.
----
-```
+Defined by the **note-write skill** — don't restate it. Fields to filter on: `tags` (topics, ticket
+numbers), `projects`, `created`, `updated`, `description`; `related` links sibling files.
 
 ### Location
-As defined on CLAUDE.md OR to `.notes/` relative to the workspace by default.
+The project's `CLAUDE.md`, else `.notes/` in the workspace.
 
-The note dir may contain an `archive/` subdirectory holding previous/outdated notes.
-**Always search it too** — archived notes are still valid results.
+**Always search recursively (`-r`), never a flat `.notes/*.md` glob** — `.notes/archive/` holds
+still-valid prior notes and a flat glob skips it.
 
 ### Searching for note files with `grep`
 
 **IMPORTANT**: Respect the frontmatter fields.
 
-**IMPORTANT**: Search recursively (`-r`), never with a flat `.notes/*.md` glob — a flat glob
-skips `.notes/archive/`.
-
-Search by topics, ticket number with `tags`:
 ```
-grep -rl "tags: .*keywords" .notes/
-```
-
-Search with `projects` field:
-```
-grep -rl "tags: .*user-management-svc" .notes/
-```
-
-Search by date:
-```
-grep -rl "created: 2025-04-30" .notes/
-grep -rl "updated: 2025-04-30" .notes/
+grep -rl "tags: .*keywords" .notes/            # topic or ticket number
+grep -rl "projects: .*user-management-svc" .notes/
+grep -rl "created: 2025-04-30" .notes/         # also: updated:
 ```
 
 ### Reporting archived notes

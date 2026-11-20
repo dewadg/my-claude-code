@@ -1,4 +1,4 @@
-# Grooming (`--groom`)
+# Grooming mode
 
 Target is an existing backlog — a label, milestone, epic, or list of ticket ids — not one block to
 split. Fetch it via `tracker-cli.md` (JSON list with title, labels, body, updated date).

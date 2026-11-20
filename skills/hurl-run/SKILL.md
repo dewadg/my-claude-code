@@ -1,13 +1,11 @@
 ---
 name: hurl-run
 description: >
-  Execute HTTP requests with the hurl CLI — run .hurl test files, or fire one-off requests with no
-  file via stdin — and read back status, body, headers, latency, and assert failures. ALWAYS use
-  when the user wants to hit, call, probe, or test an HTTP API endpoint, or run an API test suite —
-  e.g. "test the /users endpoint", "does this API return 401 without a token", "call the staging
-  endpoint with this payload", "run the hurl tests", "run users.hurl against staging", "check what
-  this route responds with". To write a reusable .hurl scenario file, use hurl-write. Not for Go unit
-  tests (use golang-unit-test) or browser UI flows.
+  Execute HTTP with the hurl CLI — run `.hurl` scenarios or pipe one-off requests — and read
+  status, body, latency and assert failures (exit 0 pass, 2 parse, 3 precondition, 4 assert). Use
+  for "test the /users endpoint", "does this API return 401 without a token", "run the hurl tests
+  against staging". To write a scenario file, use hurl-write. Not for Go unit tests or browser
+  flows.
 allowed-tools: Read, Glob, Grep, Bash(hurl *), Bash(hurlfmt *), Bash(jq *)
 ---
 
@@ -109,12 +107,9 @@ Exploring past the first failure: `--continue-on-error`.
 
 - **Without `HTTP <code>`, nothing is asserted** — a 404/500 exits 0. Always state the expected
   status when the answer matters.
-- **JSON bodies get `Content-Type: application/json` automatically** — unlike `curl -d`, no header
-  needed.
 - **`--curl FILE` exports replayable curl commands, but secrets are written as `***`** — the
   export is for showing a repro, not for re-running with real credentials.
 - **Undefined variables are exit 3, not 4.** A missing `--variables-file` or `--secret` looks like a
   runtime error, not a failed test — check the error text before raising a defect.
-- **`--json` timings are in microseconds** (`748` = 0.75 ms).
 - **zsh**: `$PIPESTATUS` is `$pipestatus` — when piping hurl into `jq`, capture hurl's exit with a
   separate run or `set -o pipefail`.

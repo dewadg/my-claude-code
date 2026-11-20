@@ -46,7 +46,7 @@ Each ticket states its driver in one phrase, tied to code evidence when there is
 
 - Size swings by two steps depending on an unknown → don't pick the middle. Give the likely size,
   mark `risk: high`, and add a `[Spike]` ticket that's blocked-by-nothing and goes first.
-- Size hinges on code nobody inspected → trace it (code-diver) before estimating, or mark
+- Size hinges on code nobody inspected → trace it (code-mapping subagent) before estimating, or mark
   `risk: high — needs trace: <what>`.
 - Greenfield project → add one step to anything that establishes a pattern (first endpoint, first
   screen) — later siblings reuse it.

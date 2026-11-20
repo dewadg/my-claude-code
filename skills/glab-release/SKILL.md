@@ -1,14 +1,10 @@
 ---
 name: glab-release
-description: >-
-  Cut a versioned GitLab release with the glab CLI: pick the previous tag,
-  compare commits since then on the default branch, build a changelog grouped
-  by conventional-commit type, and create the release (which pushes the tag and
-  triggers the tag pipeline). Use this whenever the user wants to "create a
-  release", "cut a release", "tag a version", "release X.Y.Z", "ship a new
-  version", "publish a release", or asks for a changelog/release notes for a new
-  tag — even if they don't name glab explicitly. Prefer this over a raw
-  `git tag` when the project uses GitLab and wants release notes.
+description: >
+  Cut a GitLab release with glab: preflight, sync check, changelog grouped by conventional-commit
+  type, then `glab release create` — which pushes the tag and triggers the tag pipeline. Use for
+  "create a release", "cut 1.9.0", "tag a version", "release notes for the next version". Not when
+  only a local tag is wanted.
 ---
 
 # glab Release
@@ -26,12 +22,10 @@ wants a local annotated tag with no GitLab Release page and no notes, a plain
 `git tag` is enough — but most release requests want the notes, so default to
 this skill.
 
-## Why a release matters here
+## Why it matters
 
-A GitLab Release creates the tag. In most pipelines the tag is what triggers
-build/deploy (`only: tags`). So creating a release is not just bookkeeping — it
-can build + push images and surface manual deploy jobs. Surface that to the
-user before pushing, because it is hard to undo a published tag + pipeline.
+A GitLab Release creates the tag, and `only: tags` pipelines build and deploy from it. So this is
+not bookkeeping: say so before creating, because a published tag and pipeline are hard to undo.
 
 ## Required input
 

@@ -1,6 +1,9 @@
 ---
 name: pr-description
-description: Write the description/body for a pull request or merge request from the actual branch diff, in a fixed emoji-sectioned markdown template (Overview, Related Issues, Technical Changes, Testing). Use this whenever the user is about to open or is preparing a PR/MR on any host (GitHub, GitLab, Bitbucket) — including phrasings like "create a PR", "raise an MR", "write the PR body", "what should I put in the description", "summarize this branch for review", or when they hand you a diff and ask for reviewer-facing prose. This skill produces the description text only; it never opens the PR/MR itself.
+description: >
+  Write a PR/MR description from the real branch diff in a fixed template (Overview, Related
+  Issues, Technical Changes, Testing). Use for "create a PR", "raise an MR", "write the PR body",
+  "summarize this branch for review". Produces the text only; never opens the PR.
 ---
 
 # PR/MR description

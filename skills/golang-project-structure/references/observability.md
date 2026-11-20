@@ -64,7 +64,7 @@ logs carry `trace_id`/`span_id`, and SIGINT exits 0 after logging
 | `migrate-new name=x` | next sequential `build/migrations/NNNNN_x.sql` |
 | `seed` | idempotent seeders |
 | `build` / `run` | static binary in `bin/` with version ldflags / build then serve |
-| `test` / `vet` / `lint` / `tidy` | `go test -race ./...` / `go vet` / `golangci-lint run` / `go mod tidy` |
+| `test` / `vet` / `lint` / `tidy` | `go test -race ./...` / `go vet` / `gofmt -l .` / `go mod tidy` |
 | `docker-build` | `docker build --load --build-arg BUILD_VERSION=$(VERSION)` |
 
 All targets read `./.env` through `config.LoadDotenv`; process env wins over `.env`.
